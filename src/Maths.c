@@ -71,6 +71,11 @@ inline float normalise(float val, float fromMin, float fromMax, float toMin, flo
   return toMin + (val - fromMin)/(fromMax - fromMin) * (toMax - toMin);
 }
 
+inline void printVec2(Vec2 a)
+{
+  printf("Vec2: %f, %f\n", a[0], a[1]);
+}
+
 void printVec3(Vec3 a)
 {
   printf("vec3: %f, %f, %f\n", a[0], a[1], a[2]);

@@ -7,8 +7,14 @@
 
 #include <stdio.h>
 
-unsigned char* loadTexture(char* filename);
+typedef struct Texture {
+  unsigned int width, height;
+  unsigned char channels;
+  unsigned char* image;
+} Texture;
 
+Texture loadTexture(char* filename, int desiredChannels);
+void freeTexture(Texture* tex);
 
 
 #endif

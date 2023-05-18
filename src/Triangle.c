@@ -18,15 +18,14 @@ void freeTriangle(Triangle* triangle)
   return;
 }
 
-
-
-//This function takes in 2d coords of a tris verts, the 2d point on the plain were getting the coords to and returns a 3 element carycentric coord
-inline void barycentricCoords(Vec3 out, Vec3 vert0, Vec3 vert1, Vec3 vert2, Vec3 point)
+inline void barycentricCoords(Vec3 out, Triangle* t, Vec3 point)
 {
   ///calculate barycentric coords in the triangle
-
+  float* vert0 = t->verts[0].position;
+  float* vert1 = t->verts[1].position;
+  float* vert2 = t->verts[2].position;
  #ifdef ALTIVEC
-  vector float leftSub = {vert1[1], vert0[0], vert2[0], vert0[1]};
+  vector float leftSub = { vert1[1], vert0[0], vert2[0], vert0[1]};
   vector float rightSub = {vert2[1], vert2[0], vert1[0], vert2[1]};
   vector float wv1LeftSub = {vert1[1], point[0], vert2[0], point[1]};
   vector float wv1RightSub = {vert2[1], vert2[0], vert1[0], vert2[1]};
@@ -54,7 +53,6 @@ inline void barycentricCoords(Vec3 out, Vec3 vert0, Vec3 vert1, Vec3 vert2, Vec3
   //  float wv2 = (((v2pos.y - v0pos.y) * (hitpoint.x - v2pos.x)) + ((v0pos.x - v2pos.x) * (hitpoint.y - v2pos.y))) / (((v1pos.y - v2pos.y) * (v0pos.x - v2pos.x)) + ((v2pos.x - v1pos.x) * (v0pos.y - v2pos.y)));
   //  float wv3 = 1 - wv1 - wv2;
 }
-
 
 int triangleIntersect(Vec3 v0, Vec3 v1, Vec3 v2, Ray* ray,  Vec3 intersectionPoint)
 {

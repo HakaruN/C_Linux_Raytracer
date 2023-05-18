@@ -22,6 +22,8 @@ void vec3Add(Vec3 a, Vec3 b, Vec3 result);
 void vec3ScalarMult(Vec3 vec, float scalar, Vec3 result);
 float vec3Displacement(Vec3 a, Vec3 b);
 float normalise(float val, float fromMin, float fromMax, float toMin, float toMax);
+
+void printVec2(Vec2 a);
 void printVec3(Vec3 a);
 
 

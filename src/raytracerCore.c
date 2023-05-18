@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-
+#include <stdbool.h>
 int fullscreen = 0;
 int stereoscopic = 0;//creates a segfault
 int doublebuffer = 1;
@@ -42,12 +42,12 @@ int main()
   if(doublebuffer)
     windowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
 
-  unsigned char* tex1 = loadTexture("res/scrot.png");
-  if(tex1)
+
+  Texture tex1 = loadTexture("res/scrot.png", 3);
+  if(tex1.image)
     printf("Texture loaded\n");
   else
     printf("Texture failed to load\n");
-
 
   Window* window = createWindow(fbDescriptor[WIDTH], fbDescriptor[HEIGHT], "Raytracer", fullscreen, primMonitor, NULL);
 
@@ -57,29 +57,6 @@ int main()
   //  triangleDistBuffer = malloc(sizeof(float) * fbDescriptor[WIDTH] * fbDescriptor[HEIGHT]);
   triangleHitPointBuffer = malloc(sizeof(Vec3) * fbDescriptor[WIDTH] * fbDescriptor[HEIGHT]);
 
-
-  /*
-  printf("Vector sizes:\n");
-  printf("vec unsigned char: %d\n", sizeof(vector unsigned char));
-  printf("vec signed char: %d\n", sizeof(vector signed char));
-  printf("vec bool char: %d\n", sizeof(vector bool char));
-  printf("vec unsigned short: %d\n", sizeof(vector unsigned short));
-  printf("vec signed short: %d\n", sizeof(vector signed short));
-  printf("vec bool short: %d\n", sizeof(vector bool short));
-  printf("vec pixel: %d\n", sizeof(vector pixel));
-  printf("vec unsigned int: %d\n", sizeof(vector unsigned int));
-  printf("vec signed int: %d\n", sizeof(vector signed int));
-  printf("vec bool int: %d\n", sizeof(vector bool int));
-  printf("vec float: %d\n", sizeof(vector float));
-  */
-
-
-  /*Vector example
-  vector float a = (vector float){10, 10, 15, 0};
-  vector float b = (vector float){1, 1, 1, 1};
-  vector float c = vec_add(a,b);
-  printf("%f,%f,%f,%f\n",c[0],c[1],c[2],c[3]);
-  */
 
   //init triangles
   triangles = malloc(numTriangles * sizeof(Triangle));
@@ -91,32 +68,31 @@ int main()
   Vec3 grey = {100,100,100};
   Vec3 white = {255,255,255};
   Vec3 dark = {20,20,20};
-  Vec3 norm = {1,1,1}; Vec2 uv = {0,0};
+  Vec3 norm = {1,1,1};
   if(triangles)
     {
 
-      verts[0] = vertexGen((Vec3){0,0,10}, norm, red, uv);
-      verts[1] = vertexGen((Vec3){50, 0, 10}, norm, green, uv);
-      verts[2] = vertexGen((Vec3){25, 50, 10}, norm, blue, uv);
+      verts[0] = vertexGen((Vec3){100,100, 10}, norm, red, (Vec2){100, 100});
+      verts[1] = vertexGen((Vec3){300, 100, 10}, norm, green, (Vec2){300, 100});
+      verts[2] = vertexGen((Vec3){200, 500, 10}, norm, blue, (Vec2){200, 500});
       triangles[0] = triangleGen(verts, (Vec3){0, 0, 0});
+      triangles[0].texture = tex1;
 
-      verts[0] = vertexGen((Vec3){100, 100, 10}, norm, green, uv);
-      verts[1] = vertexGen((Vec3){150, 100, 10}, norm, red, uv);
-      verts[2] = vertexGen((Vec3){125, 150, 10}, norm, blue, uv);
+      verts[0] = vertexGen((Vec3){100, 100, 10}, norm, green, (Vec2){100, 100});
+      verts[1] = vertexGen((Vec3){150, 100, 10}, norm, red, (Vec2){150, 100});
+      verts[2] = vertexGen((Vec3){125, 150, 10}, norm, blue, (Vec2){125, 150});
       triangles[1] = triangleGen(verts, (Vec3){0, 0, 0});
+      triangles[1].texture = tex1;
 
-      verts[0] = vertexGen((Vec3){150-25, 100, 5}, norm, blue, uv);
-      verts[1] = vertexGen((Vec3){250-25, 100, 5}, norm, red, uv);
-      verts[2] = vertexGen((Vec3){200-25, 150, 5}, norm, green, uv);
+      verts[0] = vertexGen((Vec3){150-25, 100, 5}, norm, blue, (Vec2){150-25, 100});
+      verts[1] = vertexGen((Vec3){250-25, 100, 5}, norm, red, (Vec2){225, 100});
+      verts[2] = vertexGen((Vec3){200-25, 150, 5}, norm, green, (Vec2){175,150});
       triangles[2] = triangleGen(verts, (Vec3){0, 0, 0});
+      triangles[2].texture = tex1;
+
     }
   else
     return -1;
-
-
-  for(int i = 0; i < numTriangles; i++)
-    triangles[i].tex = tex1;
-
 
   //setup framebuffer
   FrameBuffer fb = createFB(fbDescriptor);
@@ -163,9 +139,9 @@ int main()
 	      unsigned char triangleID = triangleHitBuffer[((j * fbDescriptor[WIDTH]) + i)];
 	      if(triangleID == 255)
 		{
-		  fb[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL] + 0] = grey[0];
-		  fb[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL] + 1] = grey[1];
-		  fb[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL] + 2] = grey[2];
+		  fb[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL] + 0] = dark[0];
+		  fb[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL] + 1] = dark[1];
+		  fb[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL] + 2] = dark[2];
 		}
 	      else
 		{
@@ -178,30 +154,35 @@ int main()
 
 		  //calculate barycentric coords in the triangle
 		  float wv[3];
-		  barycentricCoords(wv, vert0.position, vert1.position, vert2.position, hitpoint);
+		  barycentricCoords(wv, &triangles[triangleID], hitpoint);
 		  //use the barycentric coords to weight/interpolate the colours of the verts
 		  float col[3];
-		  #ifdef VA1
-		  //		  Vec3 v0Col =
 		  col[0] = (wv[0] * (float)vert0.colour[0]) + (wv[1] * (float)vert1.colour[0]) + (wv[2] * (float)vert2.colour[0]);
 		  col[1] = (wv[0] * (float)vert0.colour[1]) + (wv[1] * (float)vert1.colour[1]) + (wv[2] * (float)vert2.colour[1]);
 		  col[2] = (wv[0] * (float)vert0.colour[2]) + (wv[1] * (float)vert1.colour[2]) + (wv[2] * (float)vert2.colour[2]);
-		  #else
-		  col[0] = (wv[0] * (float)vert0.colour[0]) + (wv[1] * (float)vert1.colour[0]) + (wv[2] * (float)vert2.colour[0]);
-		  col[1] = (wv[0] * (float)vert0.colour[1]) + (wv[1] * (float)vert1.colour[1]) + (wv[2] * (float)vert2.colour[1]);
-		  col[2] = (wv[0] * (float)vert0.colour[2]) + (wv[1] * (float)vert1.colour[2]) + (wv[2] * (float)vert2.colour[2]);
-		  #endif
+		  //use the barycentric coords to interpolate the texture coords
+		  Vec2 texCords;
+		  texCords[0] = (wv[0] * vert0.texCords[0]) + (wv[1] * vert1.texCords[0]) + (wv[2] * vert2.texCords[0]);
+		  texCords[1] = (wv[0] * vert0.texCords[1]) + (wv[1] * vert1.texCords[1]) + (wv[2] * vert2.texCords[1]);
+		  int u = (int)texCords[0];
+		  int v = (int)texCords[1];
+
+		  unsigned int width = triangles[triangleID].texture.width;
+		  unsigned char* image = triangles[triangleID].texture.image;
+		  unsigned char cols[3];
+		  cols[0] = image[(((v * width) + u) * 3) + 0];
+		  cols[1] = image[(((v * width) + u) * 3) + 1];
+		  cols[2] = image[(((v * width) + u) * 3) + 2];
 		  //write the colours to the framebuffer
-		  fb[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL] + 0] = (unsigned char)col[0];
-		  fb[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL] + 1] = (unsigned char)col[1];
-		  fb[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL] + 2] = (unsigned char)col[2];
+		  fb[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL] + 0] = cols[0];
+		  fb[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL] + 1] = cols[1];
+		  fb[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL] + 2] = cols[2];
 		}
 	    }
 	}
 
 
       glClear(GL_COLOR_BUFFER_BIT);
-
       glDrawPixels(fbDescriptor[WIDTH], fbDescriptor[HEIGHT], GL_RGB, GL_UNSIGNED_BYTE, fb);
 
       //swap buffers
@@ -211,7 +192,7 @@ int main()
       glfwPollEvents();
       diff = clock() - start;
       int msec = diff * 1000 /CLOCKS_PER_SEC;
-                printf("Frametime: %d\n", msec%1000);
+      //                printf("Frametime: %d\n", msec%1000);
     }
 
 
