@@ -1,8 +1,12 @@
 #include "../include/Triangle.h"
 
-Triangle triangleGen(Vertex* verts, Vec3 pos)
+Triangle triangleGen(Vertex* verts, Vec3 pos, Texture* texture)
 {
   Triangle t;
+  if(texture)
+    t.texture = texture;
+  else
+    t.texture = NULL;
   if(verts){
     memcpy(t.verts, verts, 3 * sizeof(Vertex));
     memcpy(t.pos, pos, sizeof(Vec3));
@@ -10,10 +14,12 @@ Triangle triangleGen(Vertex* verts, Vec3 pos)
     }
 }
 
+
 void freeTriangle(Triangle* triangle)
 {
-  if(triangle)
+  if(triangle){
     free(triangle);
+  }
 
   return;
 }
