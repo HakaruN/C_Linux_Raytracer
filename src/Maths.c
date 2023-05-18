@@ -15,7 +15,7 @@ inline float dot(Vec3 a, Vec3 b)
 
 inline void vec3Add(Vec3 a, Vec3 b, Vec3 result)
 {
-#ifdef AV
+#ifdef ALTIVEC
   result vec_add(a,b);
 #else
   if(a && b && result){
@@ -42,7 +42,7 @@ inline float vec3Displacement(Vec3 a, Vec3 b)
     {
       //      #define AV
 
-#ifdef VA3
+#ifdef ALTIVEC
       vector float delta;
       vector float va = {a[0],a[1],a[2],0};
       vector float vb = {b[0],b[1],b[2],0};

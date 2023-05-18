@@ -24,8 +24,8 @@ void freeTriangle(Triangle* triangle)
 inline void barycentricCoords(Vec3 out, Vec3 vert0, Vec3 vert1, Vec3 vert2, Vec3 point)
 {
   ///calculate barycentric coords in the triangle
-  //#define VA
- #ifdef VA1
+
+ #ifdef ALTIVEC
   vector float leftSub = {vert1[1], vert0[0], vert2[0], vert0[1]};
   vector float rightSub = {vert2[1], vert2[0], vert1[0], vert2[1]};
   vector float wv1LeftSub = {vert1[1], point[0], vert2[0], point[1]};

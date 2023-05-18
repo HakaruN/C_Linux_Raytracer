@@ -4,7 +4,10 @@
 
 #include <stdio.h>
 #include <math.h>
+
+#ifdef ALTIVEC
 #include <altivec.h>
+#endif
 
 
 typedef float Vec1;
