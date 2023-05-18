@@ -117,11 +117,6 @@ int main()
   for(int i = 0; i < numTriangles; i++)
     triangles[i].tex = tex1;
 
-  vector float a = {10, 10, 10, 10};
-  vector float b = {10, 10, 10, 10};
-  vector float c = vec_mulo(a,b);
-  printf("C: %f,%f,%f,%f\n", c[0], c[1], c[2], c[3]);
-
 
   //setup framebuffer
   FrameBuffer fb = createFB(fbDescriptor);
