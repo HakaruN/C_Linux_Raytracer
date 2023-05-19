@@ -22,19 +22,26 @@ inline float dot(Vec3 a, Vec3 b)
   return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
 
-inline void vec3Normalise(Vec3 vec)
+inline void vec3Normalise(Vec3 vec, Vec3 result)
 {
   float magnitude = sqrt(vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2]);
-  vec[0] = vec[0]/magnitude;
-  vec[1] = vec[1]/magnitude;
-  vec[2] = vec[2]/magnitude;
-  //vec= (Vec3){vec[0]/magnitude, vec[1]/magnitude, vec[2]/magnitude};
+  //do 1 division (inv magnitude) then I can do 3 mults with the invMag and not have to do 3 divs with the mag.
+  //It makes it a tad faster
+  float invMag = 1/magnitude;
+  result[0] = vec[0] * invMag;
+  result[1] = vec[1] * invMag;
+  result[2] = vec[2] * invMag;
 }
 
 inline void vec3Add(Vec3 a, Vec3 b, Vec3 result)
 {
 #ifdef ALTIVEC
-  result vec_add(a,b);
+  vector float temp = vec_add(
+			      (vector float){a[0],a[1],a[2],0},
+			      (vector float){b[0],b[1],b[2],0});
+  result[0] = temp[0];
+  result[1] = temp[1];
+  result[2] = temp[2];
 #else
   if(a && b && result){
     result[0] = a[0] + b[0];
@@ -47,7 +54,12 @@ inline void vec3Add(Vec3 a, Vec3 b, Vec3 result)
 inline void vec3Sub(Vec3 a, Vec3 b, Vec3 result)
 {
 #ifdef ALTIVEC
-  result vec_sub(a,b);
+  vector float temp = vec_sub(
+			      (vector float){a[0],a[1],a[2],0},
+			      (vector float){b[0],b[1],b[2],0});
+  result[0] = temp[0];
+  result[1] = temp[1];
+  result[2] = temp[2];
 #else
   if(a && b && result){
     result[0] = a[0] - b[0];
@@ -55,6 +67,16 @@ inline void vec3Sub(Vec3 a, Vec3 b, Vec3 result)
     result[2] = a[2] - b[2];
   }
 #endif
+}
+
+inline void vec3PairwiseMult(Vec3 a, Vec3 b, Vec3 result)
+{
+  if(a && b)
+    {
+      result[0] = a[0] * b[0];
+      result[1] = a[1] * b[1];
+      result[2] = a[2] * b[2];
+    }
 }
 
 inline void vec3ScalarMult(Vec3 vec, float scalar, Vec3 result)
@@ -95,6 +117,14 @@ inline float vec3Displacement(Vec3 a, Vec3 b)
     }
   return 0;
 }
+
+
+//Matrix operation
+inline void mat3Mult(Mat3 a, Mat3 b, Mat3 c)
+{
+
+}
+
 
 
 inline float normalise(float val, float fromMin, float fromMax, float toMin, float toMax)

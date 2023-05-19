@@ -76,7 +76,9 @@ int triangleIntersect(Vec3 v0, Vec3 v1, Vec3 v2, Ray* ray,  Vec3 intersectionPoi
     return 0;
 
   f = 1.0 / a;
-  Vec3 s = {ray->origin[0] - v0[0], ray->origin[1] - v0[1], ray->origin[2] - v0[2]};
+  //  Vec3 s = {ray->origin[0] - v0[0], ray->origin[1] - v0[1], ray->origin[2] - v0[2]};
+  Vec3 s;
+  vec3Sub(ray->origin, v0, s);
   u = f * dot(s,h);
   if(u<0.0 || u >1.0)
     return 0;

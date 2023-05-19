@@ -9,11 +9,11 @@ Camera cameraGen(Vec3 origin, Vec3 target, Vec3 up, float fov, float aspectRatio
 
   //calc forwards direction
   vec3Sub(target, origin, c.forwards);
-  vec3Normalise(c.forwards);
+  vec3Normalise(c.forwards, c.forwards);
 
   //calc right
   cross(c.forwards, up, c.right);
-  vec3Normalise(c.right);
+  vec3Normalise(c.right, c.right);
 
   //calc up
   cross(c.right, c.forwards, c.up);
@@ -34,10 +34,10 @@ inline void update(Camera* c, Vec3 origin, Vec3 target, Vec3 up, float fov, floa
   memcpy(c->origin, origin, 3 * sizeof(float));
 
   vec3Sub(target, origin, c->forwards);
-  vec3Normalise(c->forwards);
+  vec3Normalise(c->forwards, c->forwards);
 
   cross(c->forwards, up, c->right);
-  vec3Normalise(c->right);
+  vec3Normalise(c->right, c->right);
 
   cross(c->right, c->forwards, c->up);
   c->aspectRatio = aspectRatio;

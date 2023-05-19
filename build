@@ -1,8 +1,7 @@
 #!/bin/bash
 cd src
 #gcc -O3 -c Texture.c
-#gcc -DVA -O3 -oraytracerVA raytracerCore.c Window.c FrameBuffer.c Vertex.c Triangle.c BvhNode.c Maths.c Ray.c Texture.o -maltivec -mabi=altivec -lGL -lGLU -lglfw3 -lX11 -ldl -lGLEW -lm -lXxf86vm -lXrandr -lpthread -lXi -lXinerama -lXcursor
-gcc -oraytracer -O3 Camera.c raytracerCore.c Window.c FrameBuffer.c Vertex.c Triangle.c BvhNode.c Maths.c Ray.c Texture.o  -lGL -lGLU -lglfw3 -lX11 -ldl -lGLEW -lm -lXxf86vm -lXrandr -lpthread -lXi -lXinerama -lXcursor
+#gcc -oraytracer -DVECTOR -DALTIVEC -O3 raytracerCore.c Window.c FrameBuffer.c Vertex.c Triangle.c BvhNode.c Maths.c Ray.c Box.c Texture.o Camera.c -maltivec -mabi=altivec -lGL -lGLU -lglfw3 -lX11 -ldl -lGLEW -lm -lXxf86vm -lXrandr -lpthread -lXi -lXinerama -lXcursor
+gcc -oraytracer -O3 Camera.c raytracerCore.c Window.c FrameBuffer.c Vertex.c Triangle.c BvhNode.c Maths.c Ray.c Box.c Texture.o  -lGL -lGLU -lglfw3 -lX11 -ldl -lGLEW -lm -lXxf86vm -lXrandr -lpthread -lXi -lXinerama -lXcursor
 mv raytracer ../
-#mv raytracerVA ../
 cd ..
