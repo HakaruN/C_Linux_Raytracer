@@ -5,6 +5,7 @@
 #include "../include/Box.h"
 #include "../include/Ray.h"
 #include "../include/Texture.h"
+#include "../include/Camera.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -26,10 +27,6 @@ Triangle* triangles;//list of triangles
 unsigned char* triangleHitBuffer;//what triangle the ray intersected
 Vec3* triangleHitPointBuffer;//where on the triangle we hit
 
-
-//void preRender(unsigned char* triangleHits, float* triangleDists, vec3* intersectPoints);
-void preRender(unsigned char* triangleHits,  Vec3* intersectPoints);
-
 int main()
 {
   //Init glfw and setup monitor/window
@@ -45,15 +42,13 @@ int main()
   if(doublebuffer)
     windowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
 
-
+  //Gen the window
   Window* window = createWindow(fbDescriptor[WIDTH], fbDescriptor[HEIGHT], "Raytracer", fullscreen, primMonitor, NULL);
-
 
   //init the triangle hit buffer and distance buffer
   triangleHitBuffer = malloc(sizeof(unsigned char) * fbDescriptor[WIDTH] * fbDescriptor[HEIGHT]);
   triangleHitPointBuffer = malloc(sizeof(Vec3) * fbDescriptor[WIDTH] * fbDescriptor[HEIGHT]);
   textures = malloc(sizeof(Texture) * numTextures);
-
 
   Vec3 red = {255,128,128};
   Vec3 green = {128,255,128};
@@ -81,18 +76,18 @@ int main()
 
   if(triangles)
     {
-      Vec3 v0 = {0, 0, 20};
-      Vec3 v1 = {400, 0, 20};
-      Vec3 v2 = {400, 400, 20};
+      Vec3 v0 = {0, 0, 100};
+      Vec3 v1 = {400, 0, 100};
+      Vec3 v2 = {400, 400, 100};
       verts[0] = vertexGen(v0, norm, red, (Vec2){0, 0});
       verts[1] = vertexGen(v1, norm, green, (Vec2){textures[0].width, 0});
       verts[2] = vertexGen(v2, norm, blue, (Vec2){textures[0].width, textures[0].height});
       triangles[0] = triangleGen(verts, (Vec3){0, 0, 0}, &textures[0]);
 
 
-      verts[0] = vertexGen((Vec3){0, 0, 10}, norm, green, (Vec2){0, 0});
-      verts[1] = vertexGen((Vec3){0, 400, 10}, norm, red, (Vec2){0, textures[1].height});
-      verts[2] = vertexGen((Vec3){400, 400, 10}, norm, blue, (Vec2){textures[1].width, textures[1].height});
+      verts[0] = vertexGen((Vec3){0, 0, 50}, norm, green, (Vec2){0, 0});
+      verts[1] = vertexGen((Vec3){0, 400, 50}, norm, red, (Vec2){0, textures[1].height});
+      verts[2] = vertexGen((Vec3){400, 400, 50}, norm, blue, (Vec2){textures[1].width, textures[1].height});
       triangles[1] = triangleGen(verts, (Vec3){0, 0, 0}, &textures[1]);
 
       verts[0] = vertexGen((Vec3){100, 50, 5}, norm, blue, (Vec2){150-25, 100});
@@ -102,6 +97,10 @@ int main()
     }
   else
     return -1;
+
+
+  Camera camera = cameraGen((Vec3){0,0,0}, (Vec3){0,0,100}, (Vec3){0,1,0}, 30,
+			    fbDescriptor[WIDTH]/fbDescriptor[HEIGHT]);
 
   //setup framebuffer
   FrameBuffer fb = createFB(fbDescriptor);
@@ -115,12 +114,29 @@ int main()
       memset(triangleHitBuffer, 0xFF, fbDescriptor[WIDTH] * fbDescriptor[HEIGHT] * sizeof(unsigned char));
 
       //Trace some rays and see what we hit
-      for(int i = 0; i < fbDescriptor[WIDTH]; i++)
+      for(int j = 0; j < fbDescriptor[HEIGHT]; j++)
 	{
-	  for(int j = 0; j < fbDescriptor[HEIGHT]; j++)
+	  float jj = ((2.0f * j) / fbDescriptor[HEIGHT]) - 1.0f;//normalised screen cord in the vertical
+	  Vec3 ja;
+	  vec3ScalarMult(camera.up, camera.dimensions[1], ja);
+	  Vec3 jb;
+	  vec3ScalarMult(ja, jj, jb);
+	  int i;
+	  for(int i = 0; i < fbDescriptor[WIDTH]; i++)
 	    {
-	      Ray ray = rayInit((Vec3){i,j,0}, (Vec3){0,0,1}, 10000);
+	      float ii = ((2.0f * i) / fbDescriptor[WIDTH]) - 1.0f;//normalised screen cord in the horisontal
 	      float distance = 0xFFFF;
+
+	      Vec3 ia;
+	      vec3ScalarMult(camera.right, camera.dimensions[0], ia);
+	      Vec3 ib;
+	      vec3ScalarMult(ia, ii, ib);
+	      Vec3 ija;
+	      vec3Add(ib, jb, ija);
+	      Vec3 ijza;
+	      vec3Add(camera.forwards, ija, ijza);
+
+	      Ray ray = rayInit((Vec3){i,j,camera.origin[2]}, ijza, 10000);
 	      for(int tID = 0; tID < numTriangles; tID++)//go through the triangles
 		{
 		  //trace some rays
@@ -138,10 +154,11 @@ int main()
 	    }
 	}
 
+      ///Shading
       //now we know what we hit, colour it to the fb
-      for(int i = 0; i < fbDescriptor[WIDTH]; i++)
+      for(int j = 0; j <fbDescriptor[HEIGHT]; j++)
 	{
-	  for(int j = 0; j <fbDescriptor[HEIGHT]; j++)
+	  for(int i = 0; i < fbDescriptor[WIDTH]; i++)
 	    {
 	      //Read from the buffer what triangle the ray intersected
 	      unsigned char triangleID = triangleHitBuffer[((j * fbDescriptor[WIDTH]) + i)];
@@ -158,7 +175,6 @@ int main()
 		//just unpack things to be more readable and get at the vertices
 		Vertex* vert0 = &triangles[triangleID].verts[0]; Vertex* vert1 = &triangles[triangleID].verts[1]; Vertex* vert2 = &triangles[triangleID].verts[2];
 
-
 		//calculate barycentric coords in the triangle
 		float wv[3];
 		barycentricCoords(wv, &triangles[triangleID], hitpoint);
@@ -166,14 +182,10 @@ int main()
 		///Colouring the triangle
 		//if the triangle isn't textured; use the barycentric coords to weight/interpolate the colours of the verts.
 		if(triangles[triangleID].texture == NULL) {
-		  unsigned char cols[3];
-		  cols[0] = (wv[0] * (float)vert0->colour[0]) + (wv[1] * (float)vert1->colour[0]) + (wv[2] * (float)vert2->colour[0]);
-		  cols[1] = (wv[0] * (float)vert0->colour[1]) + (wv[1] * (float)vert1->colour[1]) + (wv[2] * (float)vert2->colour[1]);
-		  cols[2] = (wv[0] * (float)vert0->colour[2]) + (wv[1] * (float)vert1->colour[2]) + (wv[2] * (float)vert2->colour[2]);
 		  //write the colours to the framebuffer
-		  fb[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL] + 0] = cols[0];
-		  fb[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL] + 1] = cols[1];
-		  fb[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL] + 2] = cols[2];
+		  fb[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL] + 0] = (wv[0] * (float)vert0->colour[0]) + (wv[1] * (float)vert1->colour[0]) + (wv[2] * (float)vert2->colour[0]);
+		  fb[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL] + 1] = (wv[0] * (float)vert0->colour[1]) + (wv[1] * (float)vert1->colour[1]) + (wv[2] * (float)vert2->colour[1]);
+		  fb[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL] + 2] = (wv[0] * (float)vert0->colour[2]) + (wv[1] * (float)vert1->colour[2]) + (wv[2] * (float)vert2->colour[2]);
 		}
 		else {//use the barycentric coords to interpolate the texture coords
 		  Vec2 texCords;
@@ -182,9 +194,11 @@ int main()
 		  //sample the texture at the point of intersection
 		  unsigned char* image = triangles[triangleID].texture->image;
 		  //copy the sample to the framebuffer
-		  memcpy(&fb[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL]], &image[((v * triangles[triangleID].texture->width) + u) * 3], 3 * sizeof(unsigned char));
+		  memcpy(
+			 &fb[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL]],
+			 &image[((v * triangles[triangleID].texture->width) + u) * 3],//The 3's here are the colours per pixel
+			 3 * sizeof(unsigned char));
 		}
-
 	      }
 	    }
 	}
