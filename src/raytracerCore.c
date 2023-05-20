@@ -18,7 +18,7 @@ int doublebuffer = 1;
 
 //Buffer sizes - how many entries we will allocate
 int numTextures = 10;
-int numTriangles = 1;
+int numTriangles = 3;
 int fbDescriptor[3] = {400, 400, 3};//Descriptor for the FB, [0] = WIDTH, [1] = HEIGHT, [2] = #colours per pixel
 
 //Buffers
@@ -98,17 +98,16 @@ int main()
       verts[2] = vertexGen(v2, norm, blue, (Vec2){textures[0].width, textures[0].height});
       triangles[0] = triangleGen(verts, (Vec3){200, 200, 0}, &textures[0]);
 
-      /*
-      verts[0] = vertexGen((Vec3){0, 0, 50}, norm, green, (Vec2){0, 0});
-      verts[1] = vertexGen((Vec3){0, 400, 50}, norm, red, (Vec2){0, textures[1].height});
-      verts[2] = vertexGen((Vec3){400, 400, 50}, norm, blue, (Vec2){textures[1].width, textures[1].height});
-      triangles[1] = triangleGen(verts, (Vec3){0, 0, 0}, &textures[1]);
+      verts[0] = vertexGen((Vec3){0, 0, 0}, norm, green, (Vec2){0, 0});
+      verts[1] = vertexGen((Vec3){100, 0, 0}, norm, red, (Vec2){0, textures[1].height});
+      verts[2] = vertexGen((Vec3){50, 50, 0}, norm, blue, (Vec2){textures[1].width, textures[1].height});
+      triangles[1] = triangleGen(verts, (Vec3){0, 0, 5}, &textures[1]);
 
       verts[0] = vertexGen((Vec3){100, 50, 5}, norm, blue, (Vec2){150-25, 100});
-      verts[1] = vertexGen((Vec3){300, 50, 5}, norm, red, (Vec2){225, 100});
-      verts[2] = vertexGen((Vec3){200, 323, 25}, norm, green, (Vec2){175,150});
+      verts[1] = vertexGen((Vec3){300, 100, 5}, norm, red, (Vec2){225, 100});
+      verts[2] = vertexGen((Vec3){200, 125, 25}, norm, green, (Vec2){175,150});
       triangles[2] = triangleGen(verts, (Vec3){0, 0, 0}, NULL);
-      */
+
     }
   else
     return -1;
