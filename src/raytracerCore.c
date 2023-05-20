@@ -18,8 +18,8 @@ int doublebuffer = 1;
 
 //Buffer sizes - how many entries we will allocate
 int numTextures = 10;
-int numTriangles = 3;
-int fbDescriptor[3] = {400, 400, 3};//Descriptor for the FB, [0] = WIDTH, [1] = HEIGHT, [2] = #colours per pixel
+int numTriangles = 1;
+int fbDescriptor[3] = {800, 800, 3};//Descriptor for the FB, [0] = WIDTH, [1] = HEIGHT, [2] = #colours per pixel
 
 //Buffers
 Texture* textures;//list of textures
@@ -72,6 +72,10 @@ int main()
   printMat4(m4_3);
   */
 
+  printf("%d\n", 50 % 100);
+  printf("%d\n", -50 % 100);
+  printf("%d\n", 150 % 100);
+  printf("%d\n", -150 % 100);
 
   //load some textures
   if(!textures)
@@ -90,14 +94,15 @@ int main()
 
   if(triangles)
     {
-      Vec3 v0 = {-50, 0, 100};
-      Vec3 v1 = {50, 0, 100};
-      Vec3 v2 = {0, 100, 100};
-      verts[0] = vertexGen(v0, norm, red, (Vec2){0, 0});
-      verts[1] = vertexGen(v1, norm, green, (Vec2){textures[0].width, 0});
-      verts[2] = vertexGen(v2, norm, blue, (Vec2){textures[0].width, textures[0].height});
-      triangles[0] = triangleGen(verts, (Vec3){200, 200, 0}, &textures[0]);
-
+      Vec3 v0 = {-400, 0, 0};
+      Vec3 v1 = {400, 0, 0};
+      Vec3 v2 = {0, 400, 0};
+      printf("%d\n",textures[0].width/2);
+      verts[0] = vertexGen(v0, norm, red, (Vec2){-640, 0});
+      verts[1] = vertexGen(v1, norm, green, (Vec2){textures[0].width/2, 0});
+      verts[2] = vertexGen(v2, norm, blue, (Vec2){0, textures[0].height});
+      triangles[0] = triangleGen(verts, (Vec3){fbDescriptor[WIDTH]/2, fbDescriptor[HEIGHT]/2, 100}, &textures[0]);
+      /*
       verts[0] = vertexGen((Vec3){-50, 0, 0}, norm, green, (Vec2){0, 0});
       verts[1] = vertexGen((Vec3){50, 0, 0}, norm, red, (Vec2){textures[1].width, 0});
       verts[2] = vertexGen((Vec3){0, 50, 0}, norm, blue, (Vec2){textures[1].width/2, textures[1].height});
@@ -108,7 +113,7 @@ int main()
       verts[1] = vertexGen((Vec3){300, 100, 5}, norm, red, (Vec2){225, 100});
       verts[2] = vertexGen((Vec3){200, 125, 25}, norm, green, (Vec2){175,150});
       triangles[2] = triangleGen(verts, (Vec3){0, 0, 0}, NULL);
-
+      */
 
     }
   else
@@ -250,7 +255,6 @@ int main()
 		  if(texSampleAddr > texSize)
 		    texSampleAddr = texSampleAddr % texSize;//if were running past the end of the tex, do texture wrapping
 
-
 		  memcpy(
 			 &fb[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL]],
 			 &image[texSampleAddr],//The 3's here are the colours per pixel
@@ -271,7 +275,7 @@ int main()
       glfwPollEvents();
       diff = clock() - start;
       int msec = diff * 1000 /CLOCKS_PER_SEC;
-      printf("Frametime: %d\n", msec%1000);
+      //      printf("Frametime: %d\n", msec%1000);
     }
 
 
