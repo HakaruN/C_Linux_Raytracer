@@ -58,6 +58,12 @@ int main()
   Vec3 dark = {20,20,20};
   Vec3 norm = {1,1,1};
 
+  Mat3 m3_1 = {{1,0,0}, {2,1,0}, {0,0,3}};
+  Mat3 m3_2 = {{5,0,1}, {0,1,0}, {1,7,0}};
+  Mat3 m3_3;
+  mat3Mul(m3_1, m3_2, m3_3);
+  printMat3(m3_3);
+
 
   //load some textures
   if(!textures)

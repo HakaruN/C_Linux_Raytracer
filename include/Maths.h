@@ -32,14 +32,16 @@ void vec3PairwiseMult(Vec3 a, Vec3 b, Vec3 result);
 void vec3ScalarMult(Vec3 vec, float scalar, Vec3 result);
 float vec3Displacement(Vec3 a, Vec3 b);
 
-void mat3Mult(Mat3 a, Mat3 b, Mat3 res);
-void mat4Mult(Mat4 a, Mat4 b, Mat4 res);
+void mat3Mul(Mat3 a, Mat3 b, Mat3 res);
+void mat4Mul(Mat4 a, Mat4 b, Mat4 res);
 
 
 float normalise(float val, float fromMin, float fromMax, float toMin, float toMax);
 
 void printVec2(Vec2 a);
 void printVec3(Vec3 a);
+void printMat3(Mat3 a);
+void printMat4(Mat4 a);
 
 
 #endif

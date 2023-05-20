@@ -120,9 +120,24 @@ inline float vec3Displacement(Vec3 a, Vec3 b)
 
 
 //Matrix operation
-inline void mat3Mult(Mat3 a, Mat3 b, Mat3 c)
+inline void mat3Mul(Mat3 a, Mat3 b, Mat3 c)
 {
-
+  //Max[ROW][COL]
+  #ifdef ALTIVEC
+  #else
+  //calc top row c
+  c[0][0] = (a[0][0] * b[0][0]) + (a[0][1] * b[1][0]) + (a[0][2] * b[2][0]);//first row first col
+  c[0][1] = (a[0][0] * b[0][1]) + (a[0][1] * b[1][1]) + (a[0][2] * b[2][1]);//first row secnd col
+  c[0][2] = (a[0][0] * b[0][2]) + (a[0][1] * b[1][2]) + (a[0][2] * b[2][2]);//first row third col
+  //calc middle row c
+  c[1][0] = (a[1][0] * b[0][0]) + (a[1][1] * b[1][0]) + (a[1][2] * b[2][0]);//sec row first col
+  c[1][1] = (a[1][0] * b[0][1]) + (a[1][1] * b[1][1]) + (a[1][2] * b[2][1]);//sec row secnd col
+  c[1][2] = (a[1][0] * b[0][2]) + (a[1][1] * b[1][2]) + (a[1][2] * b[2][2]);//sec row third col
+  //calc bottom row c
+  c[2][0] = (a[2][0] * b[0][0]) + (a[2][1] * b[1][0]) + (a[2][2] * b[2][0]);//thrd row frst col
+  c[2][1] = (a[2][0] * b[0][1]) + (a[2][1] * b[1][1]) + (a[2][2] * b[2][1]);//thrd row scnd col
+  c[2][2] = (a[2][0] * b[0][2]) + (a[2][1] * b[1][2]) + (a[2][2] * b[2][2]);//thrd row thrd col
+  #endif
 }
 
 
@@ -137,8 +152,17 @@ inline void printVec2(Vec2 a)
   printf("Vec2: %f, %f\n", a[0], a[1]);
 }
 
-void printVec3(Vec3 a)
+inline void printVec3(Vec3 a)
 {
   printf("vec3: %f, %f, %f\n", a[0], a[1], a[2]);
 
+}
+
+inline void printMat3(Mat3 a)
+{
+  printf("Mat3: \n");
+  printf("  "); printVec3(a[0]);
+  printf("  ");  printVec3(a[1]);
+  printf("  ");  printVec3(a[2]);
+  printf("\n");
 }
