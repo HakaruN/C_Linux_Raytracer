@@ -140,6 +140,35 @@ inline void mat3Mul(Mat3 a, Mat3 b, Mat3 c)
   #endif
 }
 
+//Matrix operation
+inline void mat4Mul(Mat4 a, Mat4 b, Mat4 c)
+{
+  //Max[ROW][COL]
+  #ifdef ALTIVEC
+  #else
+  //calc first row c
+  c[0][0] = (a[0][0] * b[0][0]) + (a[0][1] * b[1][0]) + (a[0][2] * b[2][0]) + (a[0][3] * b[3][0]);//first row first col
+  c[0][1] = (a[0][0] * b[0][1]) + (a[0][1] * b[1][1]) + (a[0][2] * b[2][1]) + (a[0][3] * b[3][1]);//first row secnd col
+  c[0][2] = (a[0][0] * b[0][2]) + (a[0][1] * b[1][2]) + (a[0][2] * b[2][2]) + (a[0][3] * b[3][2]);//first row third col
+  c[0][3] = (a[0][0] * b[0][3]) + (a[0][1] * b[1][3]) + (a[0][2] * b[2][3]) + (a[0][3] * b[3][3]);//first row forth col
+  //calc second row c
+  c[1][0] = (a[1][0] * b[0][0]) + (a[1][1] * b[1][0]) + (a[1][2] * b[2][0]) + (a[1][3] * b[3][0]);//sec row first col
+  c[1][1] = (a[1][0] * b[0][1]) + (a[1][1] * b[1][1]) + (a[1][2] * b[2][1]) + (a[1][3] * b[3][1]);//sec row secnd col
+  c[1][2] = (a[1][0] * b[0][2]) + (a[1][1] * b[1][2]) + (a[1][2] * b[2][2]) + (a[1][3] * b[3][2]);//sec row third col
+  c[1][3] = (a[1][0] * b[0][3]) + (a[1][1] * b[1][3]) + (a[1][2] * b[2][3]) + (a[1][3] * b[3][3]);//sec row forth col
+  //calc third row c
+  c[2][0] = (a[2][0] * b[0][0]) + (a[2][1] * b[1][0]) + (a[2][2] * b[2][0]) + (a[2][3] * b[3][0]);//thrd row frst col
+  c[2][1] = (a[2][0] * b[0][1]) + (a[2][1] * b[1][1]) + (a[2][2] * b[2][1]) + (a[2][3] * b[3][1]);//thrd row scnd col
+  c[2][2] = (a[2][0] * b[0][2]) + (a[2][1] * b[1][2]) + (a[2][2] * b[2][2]) + (a[2][3] * b[3][2]);//thrd row thrd col
+  c[2][3] = (a[2][0] * b[0][3]) + (a[2][1] * b[1][3]) + (a[2][2] * b[2][3]) + (a[2][3] * b[3][3]);//thrd row frth col
+  //calc fourth row c
+  c[3][0] = (a[3][0] * b[0][0]) + (a[3][1] * b[1][0]) + (a[3][2] * b[2][0]) + (a[3][3] * b[3][0]);//fourth row frst col
+  c[3][1] = (a[3][0] * b[0][1]) + (a[3][1] * b[1][1]) + (a[3][2] * b[2][1]) + (a[3][3] * b[3][1]);//fourth row scnd col
+  c[3][2] = (a[3][0] * b[0][2]) + (a[3][1] * b[1][2]) + (a[3][2] * b[2][2]) + (a[3][3] * b[3][2]);//fourth row thrd col
+  c[3][3] = (a[3][0] * b[0][3]) + (a[3][1] * b[1][3]) + (a[3][2] * b[2][3]) + (a[3][3] * b[3][3]);//fourth row frth col
+  #endif
+}
+
 
 
 inline float normalise(float val, float fromMin, float fromMax, float toMin, float toMax)
@@ -158,11 +187,28 @@ inline void printVec3(Vec3 a)
 
 }
 
+inline void printVec4(Vec4 a)
+{
+  printf("vec3: %f, %f, %f, %f\n", a[0], a[1], a[2], a[3]);
+
+}
+
+
 inline void printMat3(Mat3 a)
 {
   printf("Mat3: \n");
   printf("  "); printVec3(a[0]);
   printf("  ");  printVec3(a[1]);
   printf("  ");  printVec3(a[2]);
+  printf("\n");
+}
+
+inline void printMat4(Mat4 a)
+{
+  printf("Mat4: \n");
+  printf("  "); printVec4(a[0]);
+  printf("  ");  printVec4(a[1]);
+  printf("  ");  printVec4(a[2]);
+  printf("  ");  printVec4(a[3]);
   printf("\n");
 }

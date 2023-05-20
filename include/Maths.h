@@ -40,6 +40,7 @@ float normalise(float val, float fromMin, float fromMax, float toMin, float toMa
 
 void printVec2(Vec2 a);
 void printVec3(Vec3 a);
+void printVec4(Vec4 a);
 void printMat3(Mat3 a);
 void printMat4(Mat4 a);
 
