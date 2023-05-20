@@ -8,6 +8,7 @@ Texture loadTexture(char* filename, int desiredChannels)
   t.image = stbi_load(filename, &width, &height, &channels, desiredChannels);
 
   t.width = width; t.height = height; t.channels = channels;
+  t.sizeBytes = width * height * channels;
 
   if(t.image)
     {

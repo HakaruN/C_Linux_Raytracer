@@ -11,6 +11,7 @@ typedef struct Texture {
   unsigned int width, height;
   unsigned char channels;
   unsigned char* image;
+  unsigned int sizeBytes;
 } Texture;
 
 Texture loadTexture(char* filename, int desiredChannels);

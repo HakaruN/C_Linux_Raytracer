@@ -98,15 +98,17 @@ int main()
       verts[2] = vertexGen(v2, norm, blue, (Vec2){textures[0].width, textures[0].height});
       triangles[0] = triangleGen(verts, (Vec3){200, 200, 0}, &textures[0]);
 
-      verts[0] = vertexGen((Vec3){0, 0, 0}, norm, green, (Vec2){0, 0});
-      verts[1] = vertexGen((Vec3){100, 0, 0}, norm, red, (Vec2){0, textures[1].height});
-      verts[2] = vertexGen((Vec3){50, 50, 0}, norm, blue, (Vec2){textures[1].width, textures[1].height});
-      triangles[1] = triangleGen(verts, (Vec3){0, 0, 5}, &textures[1]);
+      verts[0] = vertexGen((Vec3){-50, 0, 0}, norm, green, (Vec2){0, 0});
+      verts[1] = vertexGen((Vec3){50, 0, 0}, norm, red, (Vec2){textures[1].width, 0});
+      verts[2] = vertexGen((Vec3){0, 50, 0}, norm, blue, (Vec2){textures[1].width/2, textures[1].height});
+      triangles[1] = triangleGen(verts, (Vec3){100, 100, 5}, &textures[1]);
+
 
       verts[0] = vertexGen((Vec3){100, 50, 5}, norm, blue, (Vec2){150-25, 100});
       verts[1] = vertexGen((Vec3){300, 100, 5}, norm, red, (Vec2){225, 100});
       verts[2] = vertexGen((Vec3){200, 125, 25}, norm, green, (Vec2){175,150});
       triangles[2] = triangleGen(verts, (Vec3){0, 0, 0}, NULL);
+
 
     }
   else
@@ -240,10 +242,19 @@ int main()
 		  //sample the texture at the point of intersection
 		  unsigned char* image = triangles[triangleID].texture->image;
 		  //copy the sample to the framebuffer
+		  //see if the text coord is wrapping past the end of the texture and if so we will modulo with the size
+		  unsigned int texSize = triangles[triangleID].texture->sizeBytes;
+		  unsigned char texChannels = triangles[triangleID].texture->channels;
+		  unsigned int texSampleAddr = ((v * triangles[triangleID].texture->width) + u) * texChannels;
+
+		  if(texSampleAddr > texSize)
+		    texSampleAddr = texSampleAddr % texSize;//if were running past the end of the tex, do texture wrapping
+
+
 		  memcpy(
 			 &fb[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL]],
-			 &image[((v * triangles[triangleID].texture->width) + u) * 3],//The 3's here are the colours per pixel
-			 3 * sizeof(unsigned char));
+			 &image[texSampleAddr],//The 3's here are the colours per pixel
+			 texChannels * sizeof(unsigned char));
 		}
 	      }
 	    }
