@@ -35,20 +35,21 @@ inline void vec3Normalise(Vec3 vec, Vec3 result)
 
 inline void vec3Add(Vec3 a, Vec3 b, Vec3 result)
 {
-#ifdef ALTIVEC
+  #ifdef ALTIVEC
   vector float temp = vec_add(
 			      (vector float){a[0],a[1],a[2],0},
 			      (vector float){b[0],b[1],b[2],0});
   result[0] = temp[0];
   result[1] = temp[1];
   result[2] = temp[2];
+
 #else
   if(a && b && result){
     result[0] = a[0] + b[0];
     result[1] = a[1] + b[1];
     result[2] = a[2] + b[2];
-  }
-#endif
+    }
+  #endif
 }
 
 inline void vec3Sub(Vec3 a, Vec3 b, Vec3 result)

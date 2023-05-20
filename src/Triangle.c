@@ -24,12 +24,12 @@ void freeTriangle(Triangle* triangle)
   return;
 }
 
-inline void barycentricCoords(Vec3 out, Triangle* t, Vec3 point)
+inline void barycentricCoords(Vec3 out, Vec3 vert0, Vec3 vert1, Vec3 vert2, Vec3 point)
 {
   ///calculate barycentric coords in the triangle
-  float* vert0 = t->verts[0].position;
-  float* vert1 = t->verts[1].position;
-  float* vert2 = t->verts[2].position;
+  //  float* vert0 = t->verts[0].position;
+  //  float* vert1 = t->verts[1].position;
+  //  float* vert2 = t->verts[2].position;
  #ifdef ALTIVEC
   vector float leftSub = { vert1[1], vert0[0], vert2[0], vert0[1]};
   vector float rightSub = {vert2[1], vert2[0], vert1[0], vert2[1]};
@@ -47,7 +47,6 @@ inline void barycentricCoords(Vec3 out, Triangle* t, Vec3 point)
   out[0] = (wv1LeftAdd + wv1RightAdd)/denominator;
   out[1] = (wv2LeftAdd + wv2RightAdd)/denominator;
   out[2] = 1 - out[0] - out[1];
-
   #else
   out[0] = (((vert1[1] - vert2[1]) * (point[0] - vert2[0])) + ((vert2[0] - vert1[0]) * (point[1] - vert2[1]))) / (((vert1[1] - vert2[1]) * (vert0[0] - vert2[0])) + ((vert2[0] - vert1[0]) * (vert0[1] - vert2[1])));
   out[1] = (((vert2[1] - vert0[1]) * (point[0] - vert2[0])) + ((vert0[0] - vert2[0]) * (point[1] - vert2[1]))) / (((vert1[1] - vert2[1]) * (vert0[0] - vert2[0])) + ((vert2[0] - vert1[0]) * (vert0[1] - vert2[1])));

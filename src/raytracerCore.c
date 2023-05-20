@@ -18,7 +18,7 @@ int doublebuffer = 1;
 
 //Buffer sizes - how many entries we will allocate
 int numTextures = 10;
-int numTriangles = 3;
+int numTriangles = 1;
 int fbDescriptor[3] = {400, 400, 3};//Descriptor for the FB, [0] = WIDTH, [1] = HEIGHT, [2] = #colours per pixel
 
 //Buffers
@@ -90,15 +90,15 @@ int main()
 
   if(triangles)
     {
-      Vec3 v0 = {0, 0, 100};
-      Vec3 v1 = {400, 0, 100};
-      Vec3 v2 = {400, 400, 100};
+      Vec3 v0 = {-50, 0, 100};
+      Vec3 v1 = {50, 0, 100};
+      Vec3 v2 = {0, 100, 100};
       verts[0] = vertexGen(v0, norm, red, (Vec2){0, 0});
       verts[1] = vertexGen(v1, norm, green, (Vec2){textures[0].width, 0});
       verts[2] = vertexGen(v2, norm, blue, (Vec2){textures[0].width, textures[0].height});
-      triangles[0] = triangleGen(verts, (Vec3){0, 0, 0}, &textures[0]);
+      triangles[0] = triangleGen(verts, (Vec3){200, 200, 0}, &textures[0]);
 
-
+      /*
       verts[0] = vertexGen((Vec3){0, 0, 50}, norm, green, (Vec2){0, 0});
       verts[1] = vertexGen((Vec3){0, 400, 50}, norm, red, (Vec2){0, textures[1].height});
       verts[2] = vertexGen((Vec3){400, 400, 50}, norm, blue, (Vec2){textures[1].width, textures[1].height});
@@ -108,6 +108,7 @@ int main()
       verts[1] = vertexGen((Vec3){300, 50, 5}, norm, red, (Vec2){225, 100});
       verts[2] = vertexGen((Vec3){200, 323, 25}, norm, green, (Vec2){175,150});
       triangles[2] = triangleGen(verts, (Vec3){0, 0, 0}, NULL);
+      */
     }
   else
     return -1;
@@ -119,6 +120,7 @@ int main()
   if(rootNode)
     printf("BVH root inited\n");
   */
+
 
 
 
@@ -172,7 +174,15 @@ int main()
 		{
 		  //trace some rays
 		  Vec3 intersectionPoint;//This is the place in space where the ray intersects with the triangle
-		  if(triangleIntersect(triangles[tID].verts[0].position, triangles[tID].verts[1].position, triangles[tID].verts[2].position, &ray, intersectionPoint))
+#ifdef RELATIVE_VERTS
+		    Vec3 tVert0Pos, tVert1Pos, tVert2Pos;
+		  vec3Add(triangles[tID].verts[0].position, triangles[tID].pos, tVert0Pos);
+		  vec3Add(triangles[tID].verts[1].position, triangles[tID].pos, tVert1Pos);
+		  vec3Add(triangles[tID].verts[2].position, triangles[tID].pos, tVert2Pos);
+		  if(triangleIntersect(tVert0Pos, tVert1Pos, tVert2Pos, &ray, intersectionPoint))
+#else
+		    if(triangleIntersect(triangles[tID].verts[0].position, triangles[tID].verts[1].position, triangles[tID].verts[2].position, &ray, intersectionPoint))
+#endif
 		    {
 		      if(ray.distance < distance)
 			{//we hit a triangle thats closer to whatever we have hit before; if anything
@@ -203,13 +213,19 @@ int main()
 		Vec3 hitpoint;
 		memcpy(hitpoint,  triangleHitPointBuffer[((j * fbDescriptor[WIDTH]) + i)], 3 * sizeof(float));
 
+
 		//just unpack things to be more readable and get at the vertices
 		Vertex* vert0 = &triangles[triangleID].verts[0]; Vertex* vert1 = &triangles[triangleID].verts[1]; Vertex* vert2 = &triangles[triangleID].verts[2];
-
-		//calculate barycentric coords in the triangle
-		float wv[3];
-		barycentricCoords(wv, &triangles[triangleID], hitpoint);
-
+		float wv[3];//barrycentric cords
+#ifdef RELATIVE_VERTS
+		Vec3 tVert0Pos, tVert1Pos, tVert2Pos;
+		vec3Add(vert0->position, triangles[triangleID].pos, tVert0Pos);
+		vec3Add(vert1->position, triangles[triangleID].pos, tVert1Pos);
+		vec3Add(vert2->position, triangles[triangleID].pos, tVert2Pos);
+		barycentricCoords(wv, tVert0Pos, tVert1Pos, tVert2Pos, hitpoint);//calculate barycentric coords in the triangle
+#else
+		barycentricCoords(wv, vert0.position, vert1.position, vert2.position, hitpoint);
+#endif
 		///Colouring the triangle
 		//if the triangle isn't textured; use the barycentric coords to weight/interpolate the colours of the verts.
 		if(triangles[triangleID].texture == NULL) {
