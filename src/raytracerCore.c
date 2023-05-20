@@ -58,6 +58,7 @@ int main()
   Vec3 dark = {20,20,20};
   Vec3 norm = {1,1,1};
 
+  /* //Matrix operation example
   Mat3 m3_1 = {{1,0,0}, {2,1,0}, {0,0,3}};
   Mat3 m3_2 = {{5,0,1}, {0,1,0}, {1,7,0}};
   Mat3 m3_3;
@@ -69,6 +70,7 @@ int main()
   Mat4 m4_3;
   mat4Mul(m4_1, m4_2, m4_3);
   printMat4(m4_3);
+  */
 
 
   //load some textures
