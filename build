@@ -2,6 +2,6 @@
 cd src
 #gcc -O3 -c Texture.c
 #gcc -oraytracer -DVECTOR -DALTIVEC -O3 raytracerCore.c Window.c FrameBuffer.c Vertex.c Triangle.c BvhNode.c Maths.c Ray.c Box.c Texture.o Camera.c -maltivec -mabi=altivec -lGL -lGLU -lglfw3 -lX11 -ldl -lGLEW -lm -lXxf86vm -lXrandr -lpthread -lXi -lXinerama -lXcursor
-gcc -DRELATIVE_VERTS -oraytracer -O3 Camera.c raytracerCore.c Window.c FrameBuffer.c Vertex.c Triangle.c BvhNode.c Maths.c Ray.c Box.c Texture.o  -lGL -lGLU -lglfw3 -lX11 -ldl -lGLEW -lm -lXxf86vm -lXrandr -lpthread -lXi -lXinerama -lXcursor
+gcc -DRELATIVE_VERTS -oraytracer -O3 Camera.c raytracerCore.c Window.c FrameBuffer.c Vertex.c Triangle.c BvhNode.c Maths.c Ray.c Box.c Raytracer.c Texture.o -lGL -lGLU -lglfw3 -lX11 -ldl -lGLEW -lm -lXxf86vm -lXrandr -lpthread -lXi -lXinerama -lXcursor
 mv raytracer ../
 cd ..

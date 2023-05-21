@@ -1,0 +1,4 @@
+#!/bin/bash
+cd src
+gcc -O3 -c Texture.c
+cd ..

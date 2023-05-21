@@ -63,9 +63,9 @@ int triangleIntersect(Vec3 v0, Vec3 v1, Vec3 v2, Ray* ray,  Vec3 intersectionPoi
 {
   const float EPSILON = 0.000001;
   intersectionPoint[0] = 0; intersectionPoint[1] = 0; intersectionPoint[2] = 0;
-
   Vec3  h, q;
   float a, f, u, v;
+
   Vec3 edge1 = {v1[0] - v0[0], v1[1] - v0[1], v1[2] - v0[2]};
   Vec3 edge2 = {v2[0] - v0[0], v2[1] - v0[1], v2[2] - v0[2]};
 
