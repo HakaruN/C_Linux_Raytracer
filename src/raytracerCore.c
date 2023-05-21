@@ -19,7 +19,7 @@ int doublebuffer = 1;
 
 //Buffer sizes - how many entries we will allocate
 unsigned int numTextures = 10;
-unsigned int numTriangles = 1;
+unsigned int numTriangles = 3;
 FbDescriptor fbDescriptor = {400, 400, 3};//Descriptor for the FB, [0] = WIDTH, [1] = HEIGHT, [2] = #colours per pixel
 
 //how many are allocated
@@ -51,7 +51,7 @@ int main()
   Window* window = createWindow(fbDescriptor[WIDTH], fbDescriptor[HEIGHT], "Raytracer", fullscreen, primMonitor, NULL);
 
   //init the triangle hit buffer and distance buffer
-  rayHitBuffer = malloc(sizeof(RayHitBuffer) * fbDescriptor[WIDTH] * fbDescriptor[HEIGHT]);
+  rayHitBuffer = malloc(sizeof(unsigned short) * fbDescriptor[WIDTH] * fbDescriptor[HEIGHT]);
   rayHitpointBuffer = malloc(sizeof(Vec3) * fbDescriptor[WIDTH] * fbDescriptor[HEIGHT]);
   textures = malloc(sizeof(Texture) * numTextures);
 
@@ -87,9 +87,9 @@ int main()
     return -1;}
 
 
-  verticesAddVert(&vertices, vertexGen((Vec3){-50, 0, 0}, normal, red, (Vec2){-600, 0}));
-  verticesAddVert(&vertices, vertexGen((Vec3){50, 0, 0}, normal, green, (Vec2){400, 0}));
-  verticesAddVert(&vertices, vertexGen((Vec3){0, 100, 0}, normal, blue, (Vec2){0, 800}));
+  verticesAddVert(&vertices, vertexGen((Vec3){-50, 0, 0}, normal, red, (Vec2){0, 0}));
+  verticesAddVert(&vertices, vertexGen((Vec3){50, 0, 0}, normal, green, (Vec2){100, 0}));
+  verticesAddVert(&vertices, vertexGen((Vec3){0, 100, 0}, normal, blue, (Vec2){0, 100}));
 
   //load some textures
   if(!textures)
@@ -116,18 +116,18 @@ int main()
       verts[2] = *verticesGetVert(&vertices, 2);
 
       triangles[0] = triangleGen(verts, (Vec3){200, 200, 100}, &textures[0]);
-      /*
-      verts[0] = vertexGen((Vec3){-50, 0, 0}, norm, green, (Vec2){0, 0});
-      verts[1] = vertexGen((Vec3){50, 0, 0}, norm, red, (Vec2){textures[1].width, 0});
-      verts[2] = vertexGen((Vec3){0, 50, 0}, norm, blue, (Vec2){textures[1].width/2, textures[1].height});
+
+      verts[0] = vertexGen((Vec3){-50, 0, 0}, normal, green, (Vec2){0, 0});
+      verts[1] = vertexGen((Vec3){50, 0, 0}, normal, red, (Vec2){textures[1].width, 0});
+      verts[2] = vertexGen((Vec3){0, 50, 0}, normal, blue, (Vec2){textures[1].width/2, textures[1].height});
       triangles[1] = triangleGen(verts, (Vec3){100, 100, 5}, &textures[1]);
 
 
-      verts[0] = vertexGen((Vec3){100, 50, 5}, norm, blue, (Vec2){150-25, 100});
-      verts[1] = vertexGen((Vec3){300, 100, 5}, norm, red, (Vec2){225, 100});
-      verts[2] = vertexGen((Vec3){200, 125, 25}, norm, green, (Vec2){175,150});
+      verts[0] = vertexGen((Vec3){100, 50, 5}, normal, blue, (Vec2){150-25, 100});
+      verts[1] = vertexGen((Vec3){300, 100, 5}, normal, red, (Vec2){225, 100});
+      verts[2] = vertexGen((Vec3){200, 125, 25}, normal, green, (Vec2){175,150});
       triangles[2] = triangleGen(verts, (Vec3){0, 0, 0}, NULL);
-      */
+
 
     }
   else
@@ -143,8 +143,7 @@ int main()
 
 
 
-  Camera camera = cameraGen((Vec3){0,0,0}, (Vec3){0,0,100}, (Vec3){0,1,0}, 30,
-			    fbDescriptor[WIDTH]/fbDescriptor[HEIGHT]);
+  Camera camera = cameraGen((Vec3){0,0,0}, (Vec3){0,0,100}, (Vec3){0,1,0}, 30, fbDescriptor[WIDTH]/fbDescriptor[HEIGHT]);
 
   //setup framebuffer
   FrameBuffer frameBuffer = createFB(fbDescriptor);
@@ -163,7 +162,7 @@ int main()
       glClear(GL_COLOR_BUFFER_BIT);
 
       //Clear the pixel's triangle hit buffer
-      memset(rayHitBuffer, 0xFF, fbDescriptor[WIDTH] * fbDescriptor[HEIGHT] * sizeof(unsigned char));
+      memset(rayHitBuffer, 0xFFFF, fbDescriptor[WIDTH] * fbDescriptor[HEIGHT] * sizeof(unsigned short));
 
       ///Fire rays through each pixel and see what we hit (marked in the rayHitBuffer previously cleared)
       traceRays(triangles, numTriangles, &camera, rayHitBuffer, rayHitpointBuffer, fbDescriptor, invHeightMinus1, invWidthMinus1);

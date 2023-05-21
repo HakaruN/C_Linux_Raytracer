@@ -31,7 +31,7 @@ void traceRays(Triangle* triangles, unsigned int numTriangles, Camera* camera, R
 	  vec3Add(camera->forwards, ija, ijza);
 	  vec3Normalise(ijza, ijza);
 	  Ray ray = rayInit((Vec3){i,j,camera->origin[2]}, ijza, 10000);
-	  for(int tID = 0; tID < numTriangles; tID++)//go through the triangles
+	  for(unsigned short tID = 0; tID < numTriangles; tID++)//go through the triangles
 	    {
 	      //trace some rays
 	      Vec3 intersectionPoint;//This is the place in space where the ray intersects with the triangle
@@ -63,15 +63,16 @@ void traceRays(Triangle* triangles, unsigned int numTriangles, Camera* camera, R
 
 inline void shading(Triangle* triangles, FrameBuffer frameBuffer,  RayHitBuffer rayHitBuffer, RayHitpointBuffer rayHitpointBuffer, FbDescriptor fbDescriptor)
 {
+
   //now we know what we hit, colour it to the fb
   for(int j = 0; j < fbDescriptor[HEIGHT]; j++)
     {
       for(int i = 0; i < fbDescriptor[WIDTH]; i++)
 	{
 	  //Read from the buffer what triangle the ray intersected
-	  unsigned char triangleID = rayHitBuffer[((j * fbDescriptor[WIDTH]) + i)];
-	  if(triangleID == 0xFF){//if we didn't hit a triangle, colour the pixel "dark"
-	    Vec3 dark = {20,20,20};//TODO: Pass in the colours through a colour array
+	  unsigned short triangleID = rayHitBuffer[((j * fbDescriptor[WIDTH]) + i)];
+	  if(triangleID == 0xFFFF){//if we didn't hit a triangle, colour the pixel "dark"
+	    Vec3 dark = {80,80,80};//TODO: Pass in the colours through a colour array
 	    frameBuffer[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL] + 0] = dark[0];
 	    frameBuffer[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL] + 1] = dark[1];
 	    frameBuffer[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL] + 2] = dark[2];
