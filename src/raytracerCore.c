@@ -45,9 +45,7 @@ int main()
   if(doublebuffer)
     windowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
 
-  printf("FB: %d, %d, %d\n", fbDescriptor[0], fbDescriptor[1], fbDescriptor[2]);
   //Gen the window
-  //TODO: Change the params out to just pass a ptr to the fbDescriptor
   Window* window = createWindow(fbDescriptor[WIDTH], fbDescriptor[HEIGHT], "Raytracer", fullscreen, primMonitor, NULL);
 
   //init the triangle hit buffer and distance buffer
@@ -61,20 +59,6 @@ int main()
   Vec3 grey = {100,100,100};
   Vec3 white = {255,255,255};
   Vec3 dark = {20,20,20};
-
-  /* //Matrix operation example
-  Mat3 m3_1 = {{1,0,0}, {2,1,0}, {0,0,3}};
-  Mat3 m3_2 = {{5,0,1}, {0,1,0}, {1,7,0}};
-  Mat3 m3_3;
-  mat3Mul(m3_1, m3_2, m3_3);
-  printMat3(m3_3);
-
-  Mat4 m4_1 = {{1,2,3,4}, {5,6,7,8}, {9,10,11,12}, {13,14,15,16}};
-  Mat4 m4_2 = {{20,21,22,23}, {24,25,26,27}, {28,29,30,31}, {32,33,34,35}};
-  Mat4 m4_3;
-  mat4Mul(m4_1, m4_2, m4_3);
-  printMat4(m4_3);
-  */
 
   Vec3 normal = {1,1,1};
   //Generate the vertices list
@@ -108,13 +92,9 @@ int main()
   Vertex verts[3];
   if(triangles)
     {
-      //verts[0] = vertexGen(v0, norm, red, (Vec2){-640, 0});
-      //verts[1] = vertexGen(v1, norm, green, (Vec2){textures[0].width/2, 0});
-      //verts[2] = vertexGen(v2, norm, blue, (Vec2){0, textures[0].height});
       verts[0] = *verticesGetVert(&vertices, 0);
       verts[1] = *verticesGetVert(&vertices, 1);
       verts[2] = *verticesGetVert(&vertices, 2);
-
       triangles[0] = triangleGen(verts, (Vec3){200, 200, 100}, &textures[0]);
 
       verts[0] = vertexGen((Vec3){-50, 0, 0}, normal, green, (Vec2){0, 0});
@@ -122,13 +102,10 @@ int main()
       verts[2] = vertexGen((Vec3){0, 50, 0}, normal, blue, (Vec2){textures[1].width/2, textures[1].height});
       triangles[1] = triangleGen(verts, (Vec3){100, 100, 5}, &textures[1]);
 
-
       verts[0] = vertexGen((Vec3){100, 50, 5}, normal, blue, (Vec2){150-25, 100});
       verts[1] = vertexGen((Vec3){300, 100, 5}, normal, red, (Vec2){225, 100});
       verts[2] = vertexGen((Vec3){200, 125, 25}, normal, green, (Vec2){175,150});
       triangles[2] = triangleGen(verts, (Vec3){0, 0, 0}, NULL);
-
-
     }
   else
     return -1;
@@ -139,9 +116,6 @@ int main()
   if(rootNode)
     printf("BVH root inited\n");
   */
-
-
-
 
   Camera camera = cameraGen((Vec3){0,0,0}, (Vec3){0,0,100}, (Vec3){0,1,0}, 30, fbDescriptor[WIDTH]/fbDescriptor[HEIGHT]);
 

@@ -25,7 +25,9 @@ Window* createWindow(int width, int height, const char* name, int isFullscreen, 
       window->name = name;
       window->monitor = monitor;
       window->window = glfwCreateWindow(window->width, window->height, window->name, isFullscreen ? window->monitor : NULL, NULL);
-
+#ifdef DEBUG
+      printf("Creating window: %dx%d\n", width, height);
+#endif
 
       if(!window->window)
 	{
