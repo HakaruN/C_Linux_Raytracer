@@ -12,6 +12,7 @@
 
 
 
-void traceRays(Triangle* triangles, unsigned int numTriangles, FrameBuffer frameBuffer, Camera* camera, RayHitBuffer rayHitBuffer, RayHitpointBuffer rayHitPointBuffer, FbDescriptor fbDescriptor, float invHeightMinus1, float invWidthMinus1);
+void traceRays(Triangle* triangles, unsigned int numTriangles, Camera* camera, RayHitBuffer rayHitBuffer, RayHitpointBuffer rayHitPointBuffer, FbDescriptor fbDescriptor, float invHeightMinus1, float invWidthMinus1);
+void shading(Triangle* triangles, FrameBuffer frameBuffer,  RayHitBuffer rayHitBuffer, RayHitpointBuffer rayHitpointBuffer, FbDescriptor fbDescriptor);
 
 #endif
