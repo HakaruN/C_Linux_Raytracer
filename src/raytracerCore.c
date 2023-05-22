@@ -49,7 +49,7 @@ int main()
   Window* window = createWindow(fbDescriptor[WIDTH], fbDescriptor[HEIGHT], "Raytracer", fullscreen, primMonitor, NULL);
 
   //init the triangle hit buffer and distance buffer
-  rayHitBuffer = malloc(sizeof(unsigned short) * fbDescriptor[WIDTH] * fbDescriptor[HEIGHT]);
+  rayHitBuffer = malloc(sizeof(Triangle*) * fbDescriptor[WIDTH] * fbDescriptor[HEIGHT]);
   rayHitpointBuffer = malloc(sizeof(Vec3) * fbDescriptor[WIDTH] * fbDescriptor[HEIGHT]);
   textures = malloc(sizeof(Texture) * numTextures);
 
@@ -109,13 +109,19 @@ int main()
     }
   else
     return -1;
-  /*
+
   //Setup the bvh node
-  BBox* rootBox = genBox((Vec3){0,0,0},(Vec3){10,10,10});
-  BvhNode* rootNode = bvhNodeGen(8, 0, *rootBox);
+  Vec3 bmin = {0,0,10};
+  Vec3 bmax = {400,400,110};
+  BBox* rootBox = genBox(bmin, bmax);
+  BvhNode* rootNode = bvhNodeGen(8, 3, *rootBox);
   if(rootNode)
     printf("BVH root inited\n");
-  */
+
+
+
+  bvhAddTriangle(rootNode, triangles[0]);
+
 
   Camera camera = cameraGen((Vec3){0,0,0}, (Vec3){0,0,100}, (Vec3){0,1,0}, 30, fbDescriptor[WIDTH]/fbDescriptor[HEIGHT]);
 
@@ -136,13 +142,13 @@ int main()
       glClear(GL_COLOR_BUFFER_BIT);
 
       //Clear the pixel's triangle hit buffer
-      memset(rayHitBuffer, 0xFFFF, fbDescriptor[WIDTH] * fbDescriptor[HEIGHT] * sizeof(unsigned short));
+      memset(rayHitBuffer, 0x00000000, fbDescriptor[WIDTH] * fbDescriptor[HEIGHT] * sizeof(Triangle*));
 
       ///Fire rays through each pixel and see what we hit (marked in the rayHitBuffer previously cleared)
-      traceRays(triangles, numTriangles, &camera, rayHitBuffer, rayHitpointBuffer, fbDescriptor, invHeightMinus1, invWidthMinus1);
+      traceRays(rootNode, &camera, rayHitBuffer, rayHitpointBuffer, fbDescriptor, invHeightMinus1, invWidthMinus1);
 
       ///Shading, sample the texture or interpolate vertex colours of where we hit and put it in the framebuffer
-      shading(triangles, frameBuffer, rayHitBuffer, rayHitpointBuffer, fbDescriptor);
+      shading(frameBuffer, rayHitBuffer, rayHitpointBuffer, fbDescriptor);
 
       //Copy framebuffer to GPU
       glDrawPixels(fbDescriptor[WIDTH], fbDescriptor[HEIGHT], GL_RGB, GL_UNSIGNED_BYTE, frameBuffer);
@@ -154,7 +160,7 @@ int main()
       glfwPollEvents();
       diff = clock() - start;
       int msec = diff * 1000 /CLOCKS_PER_SEC;
-      printf("Frametime: %d\n", msec%1000);
+      //      printf("Frametime: %d\n", msec%1000);
     }
 
 

@@ -4,6 +4,8 @@ BvhNode* bvhNodeGen(unsigned int childrenSize, unsigned int trianglesSize, BBox 
 {
   BvhNode* node = malloc(sizeof(BvhNode));
   if(node){
+    memcpy(&(node->boundingBox.min), &boundingBox.min, sizeof(float) * 3);
+    memcpy(&(node->boundingBox.max), &boundingBox.max, sizeof(float) * 3);
     node->numTriangles = 0;
     node->numChildren = 0;
     node->trianglesMax = trianglesSize;
@@ -103,24 +105,27 @@ void bvhAddTriangle(BvhNode* node, Triangle triangle)
   }
 }
 
-int rayBoxIntersection(Ray ray, BBox* box, float* min, float* max)
+inline int rayBoxIntersection(Ray* ray, BBox* box, float* min, float* max)
 {
   if(min && max){
-    Vec3 invDir = {1.0f / ray.direction[0],
-		   1.0f / ray.direction[1],
-		   1.0f / ray.direction[2]
+    Vec3 invDir = {1.0f / ray->direction[0],
+		   1.0f / ray->direction[1],
+		   1.0f / ray->direction[2]
     };
-    int sign[3] = {invDir[0] < 0, invDir[1] < 1, invDir[2] < 0};
+    int sign[3] = {invDir[0] < 0, invDir[1] < 0, invDir[2] < 0};
+    //    printf("Min: ");
+    //    printVec3(box->min);
+    //    printf("Max: ");
+    //    printVec3(box->max);
 
+    float txMin = (box->min[0] - ray->origin[0]) * invDir[0];
+    float txMax = (box->max[0] - ray->origin[0]) * invDir[0];
+    float tyMin = (box->min[1] - ray->origin[1]) * invDir[1];
+    float tyMax = (box->max[1] - ray->origin[1]) * invDir[1];
+    float tzMin = (box->min[2] - ray->origin[2]) * invDir[2];
+    float tzMax = (box->max[2] - ray->origin[2]) * invDir[2];
 
-    float txMin = (*box[0][0] - ray.origin[0]) * invDir[0];
-    float txMax = (*box[1][0] - ray.origin[0]) * invDir[0];
-    float tyMin = (*box[0][1] - ray.origin[1]) * invDir[1];
-    float tyMax = (*box[1][1] - ray.origin[1]) * invDir[1];
-    float tzMin = (*box[0][2] - ray.origin[2]) * invDir[2];
-    float tzMax = (*box[1][2] - ray.origin[2]) * invDir[2];
-
-    if((txMin > tyMax) || (tyMin > tzMax))
+    if((txMin > tyMax) || (tyMin > txMax))
       return 0;
 
     //txMin and txMax double up as temp vals during the algorithm
@@ -144,4 +149,43 @@ int rayBoxIntersection(Ray ray, BBox* box, float* min, float* max)
     return 1;
   }
   return 0;
+}
+
+inline void testBVH(Ray* ray, BvhNode* node, Vec3 intersectionPoint, float* distance, Triangle* closestTriangle)
+{
+
+  if(node->children && node->numChildren > 0){
+    //Node has child nodes, we'll go into them until we reach the bottom of the tree
+#ifdef DEBUG
+    printf("Bvh node iterating through (%d) children\n", node->numChildren);
+#endif
+    for(unsigned int childIdx = 0; childIdx < node->numChildren; childIdx++)
+      {
+	testBVH(ray, &node->children[childIdx], intersectionPoint, distance, closestTriangle);
+      }
+  }
+
+
+  //see if we intersect the bounding box of the node
+  Vec2 bounds;
+  //  printVec3(node->boundingBox.min);
+  //  printVec3(node->boundingBox.max);
+  if(rayBoxIntersection(ray, &node->boundingBox, &bounds[0], &bounds[1])){
+    //if we do intersect, go through the triangles of the node and test for intersections with them
+    //    printf("Ray box intersection\n");
+    if(node->triangles != NULL && node->numTriangles > 0){
+      for(unsigned int triangleIdx = 0; triangleIdx < node->numTriangles; triangleIdx++){
+	Triangle* triangle = &node->triangles[triangleIdx];
+	if(triangleIntersect(triangle->verts[0].position, triangle->verts[1].position, triangle->verts[2].position, ray, intersectionPoint)){
+	  //if we intersect with the triangle, check if its the closes triangle we've hit so far. If so mark it.
+	  if(ray->distance < *distance){//if its closer, mark it
+	    printf("Curent min distance %f\n", *distance);
+	    printf("intersection distance %f\n", ray->distance);
+	    closestTriangle = triangle;
+	    *distance = ray->distance;
+	  }
+	}
+      }
+    }
+  }
 }
