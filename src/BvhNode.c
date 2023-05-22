@@ -176,7 +176,16 @@ inline void testBVH(Ray* ray, BvhNode* node, Vec3 intersectionPoint, float* dist
     if(node->triangles != NULL && node->numTriangles > 0){
       for(unsigned int triangleIdx = 0; triangleIdx < node->numTriangles; triangleIdx++){
 	Triangle* triangle = &node->triangles[triangleIdx];
+#ifdef RELATIVE_VERTS
+	Vec3 tVert0Pos, tVert1Pos, tVert2Pos;
+	vec3Add(triangle->verts[0].position, triangle->pos, tVert0Pos);
+	vec3Add(triangle->verts[1].position, triangle->pos, tVert1Pos);
+	vec3Add(triangle->verts[2].position, triangle->pos, tVert2Pos);
+	if(triangleIntersect(tVert0Pos, tVert1Pos, tVert2Pos, ray, intersectionPoint)){
+#else
 	if(triangleIntersect(triangle->verts[0].position, triangle->verts[1].position, triangle->verts[2].position, ray, intersectionPoint)){
+#endif
+
 	  //if we intersect with the triangle, check if its the closes triangle we've hit so far. If so mark it.
 	  if(ray->distance < *distance){//if its closer, mark it
 	    printf("Curent min distance %f\n", *distance);

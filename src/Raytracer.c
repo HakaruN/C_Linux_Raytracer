@@ -30,14 +30,14 @@ void traceRays(BvhNode* bvhNode, Camera* camera, RayHitBuffer rayHitBuffer, RayH
 	  Vec3 ijza;
 	  vec3Add(camera->forwards, ija, ijza);
 	  vec3Normalise(ijza, ijza);
-	  Ray ray = rayInit((Vec3){i,j,camera->origin[2]}, ijza, 10000);
+	  float distance = 500000;//distance limit something big
+	  printVec3(ijza);
+	  Ray ray = rayInit((Vec3){i,j,camera->origin[2]}, ijza, distance);
 	  //Test the ray against the BvhNode
 	  Vec3 intersectionPoint;//This is the place in space where the ray intersects with the triangle
-	  float distance = 500000;//distance limit something big
-
 	  Triangle* hitTriangle;
 	  testBVH(&ray, bvhNode, intersectionPoint, &distance, hitTriangle);
-	  if(distance != 500000){
+	  if(ray.distance < distance){
 	    printf("Hit\n");
 	    //ray hit something inside the Bvh.
 	    rayHitBuffer[((j * fbDescriptor[WIDTH]) + i)] = hitTriangle;//TODO: Change ray hit buffer to be a pointer to triangles

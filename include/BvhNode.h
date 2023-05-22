@@ -1,6 +1,10 @@
 #ifndef __BVH_NODE_H__
 #define __BVH_NODE_H__
 
+#ifndef RELATIVE_VERTS
+#define RELATIVE_VERTS
+#endif
+
 #include "Maths.h"
 #include "Ray.h"
 #include "Triangle.h"
