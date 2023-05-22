@@ -83,11 +83,12 @@ inline void shading(FrameBuffer frameBuffer,  RayHitBuffer rayHitBuffer, RayHitp
 	    float wv[3];//barrycentric cords
 
 #ifdef RELATIVE_VERTS
-	    Vec3 tVert0Pos, tVert1Pos, tVert2Pos;
+	    /*	    Vec3 tVert0Pos, tVert1Pos, tVert2Pos;
 	    vec3Add(vert0->position, triangle->pos, tVert0Pos);
 	    vec3Add(vert1->position, triangle->pos, tVert1Pos);
 	    vec3Add(vert2->position, triangle->pos, tVert2Pos);
-	    barycentricCoords(wv, tVert0Pos, tVert1Pos, tVert2Pos, hitpoint);//calculate barycentric coords in the triangle
+	    */
+	    barycentricCoords(wv, vert0->transformedPosition, vert1->transformedPosition, vert2->transformedPosition, hitpoint);//calculate barycentric coords in the triangle
 #else
 	    barycentricCoords(wv, vert0->position, vert1->position, vert2->position, hitpoint);
 #endif

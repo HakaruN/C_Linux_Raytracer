@@ -179,8 +179,9 @@ inline void testBVH(Ray* ray, BvhNode* node, Vec3 intersectionPoint, float* dist
 
 	//Calculate normalised device coordinates
 	Vec3 ndcVert0, ndcVert1, ndcVert2;
-#ifdef RELATIVE_VERTS
 
+#ifdef RELATIVE_VERTS
+	vec3Normalise(triangle->verts[0].transformedPosition, ndcVert0
 	if(triangleIntersect(triangle->verts[0].transformedPosition, triangle->verts[1].transformedPosition, triangle->verts[2].transformedPosition, ray, intersectionPoint)){
 #else
 	if(triangleIntersect(triangle->verts[0].position, triangle->verts[1].position, triangle->verts[2].position, ray, intersectionPoint)){

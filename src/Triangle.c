@@ -8,8 +8,18 @@ Triangle triangleGen(Vertex* verts, Vec3 pos, Texture* texture)
   else
     t.texture = NULL;
   if(verts){
-    memcpy(t.verts, verts, 3 * sizeof(Vertex));
-    memcpy(t.pos, pos, sizeof(Vec3));
+    memcpy(t.verts, verts, 3 * sizeof(Vertex));//copy the verts
+    ////Transform the triangle's vert pos now so doesn't happen at render-time
+    //Transform the verts pos with the triangle pos and store them in the verts transformedPos
+    Vec3 tVert0Pos, tVert1Pos, tVert2Pos;
+    vec3Add(t.verts[0].position, pos, tVert0Pos);
+    vec3Add(t.verts[1].position, pos, tVert1Pos);
+    vec3Add(t.verts[2].position, pos, tVert2Pos);
+    memcpy(t.verts[0].transformedPosition, tVert0Pos, sizeof(Vec3));
+    memcpy(t.verts[1].transformedPosition, tVert1Pos, sizeof(Vec3));
+    memcpy(t.verts[2].transformedPosition, tVert2Pos, sizeof(Vec3));
+
+    memcpy(t.position, pos, sizeof(Vec3));
     return t;
     }
 }

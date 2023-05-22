@@ -10,7 +10,7 @@
 
 typedef struct{
   Vertex verts[3];
-  Vec3 pos;
+  Vec3 position;
   Texture* texture;
 } Triangle;
 
