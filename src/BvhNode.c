@@ -180,16 +180,29 @@ inline void testBVH(Ray* ray, BvhNode* node, Vec3 intersectionPoint, float* dist
 	//Calculate normalised device coordinates
 	Vec3 ndcVert0, ndcVert1, ndcVert2;
 #ifdef RELATIVE_VERTS
-
-	if(triangleIntersect(triangle->verts[0].transformedPosition, triangle->verts[1].transformedPosition, triangle->verts[2].transformedPosition, ray, intersectionPoint)){
+	/*
+	  vec3Normalise(triangle->verts[0].transformedPosition, ndcVert0);
+	vec3Normalise(triangle->verts[1].transformedPosition, ndcVert1);
+	vec3Normalise(triangle->verts[2].transformedPosition, ndcVert2);
+	printVec3(triangle->verts[0].transformedPosition);
+	printVec3(triangle->verts[1].transformedPosition);
+	printVec3(triangle->verts[2].transformedPosition);
+	printVec3(ndcVert0);
+	printVec3(ndcVert1);
+	printVec3(ndcVert2);
+	printf("\n");
+	if(triangleIntersect(ndcVert0, ndcVert1, ndcVert2, ray, intersectionPoint)){
+	*/
+	if(triangleIntersect(triangle->verts[0].transformedPosition, triangle->verts[1].transformedPosition,
+			     triangle->verts[2].transformedPosition, ray, intersectionPoint)){
 #else
 	if(triangleIntersect(triangle->verts[0].position, triangle->verts[1].position, triangle->verts[2].position, ray, intersectionPoint)){
 #endif
 
 	  //if we intersect with the triangle, check if its the closes triangle we've hit so far. If so mark it.
 	  if(ray->distance < *distance){//if its closer, mark it
-	    printf("Curent min distance %f\n", *distance);
-	    printf("intersection distance %f\n", ray->distance);
+	    //printf("Curent min distance %f\n", *distance);
+	    //printf("intersection distance %f\n", ray->distance);
 	    closestTriangle = triangle;
 	    *distance = ray->distance;
 	  }
