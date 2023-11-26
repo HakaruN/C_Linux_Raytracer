@@ -20,8 +20,8 @@ Triangle triangleGen(Vertex* verts, Vec3 pos, Texture* texture)
     memcpy(t.verts[2].transformedPosition, tVert2Pos, sizeof(Vec3));
 
     memcpy(t.position, pos, sizeof(Vec3));
-    return t;
     }
+  return t;
 }
 
 

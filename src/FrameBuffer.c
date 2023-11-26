@@ -17,6 +17,8 @@ FrameBuffer createFB(FbDescriptor fbDescriptor)
 
   if(fb)
     return fb;
+    
+  return NULL;
 }
 
 void freeFB(FrameBuffer fb)

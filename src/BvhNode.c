@@ -39,7 +39,7 @@ void bvhNodeFree(BvhNode* node)
     }
     //We have no children below us so we can start cleaning ourselves up
     free(node->children);
-    node->children == NULL;
+    node->children = NULL;
 
     if(node->numTriangles > 0){
       if(node->triangles) {//cleanup the triangles
@@ -57,7 +57,7 @@ void bvhNodeFree(BvhNode* node)
 void bvhAddChild(BvhNode* node, BvhNode* child)
 {
   if(child && node){
-    const unsigned int numToAllocate;//basically a default
+    const unsigned int numToAllocate = 2;//basically a default
     if(!node->children){//children array not allocated, we'll allocate it now
       node->children = malloc(numToAllocate * sizeof(BvhNode));
       node->childrenMax = numToAllocate;
@@ -107,12 +107,12 @@ void bvhAddTriangle(BvhNode* node, Triangle triangle)
 
 inline int rayBoxIntersection(Ray* ray, BBox* box, float* min, float* max)
 {
-  if(min && max){
-    Vec3 invDir = {1.0f / ray->direction[0],
-		   1.0f / ray->direction[1],
-		   1.0f / ray->direction[2]
+  if(min && max){//is min and max a valid ptr
+    Vec3 invDir = {
+      1.0f / ray->direction[0],
+		  1.0f / ray->direction[1],
+		  1.0f / ray->direction[2]
     };
-    int sign[3] = {invDir[0] < 0, invDir[1] < 0, invDir[2] < 0};
     //    printf("Min: ");
     //    printVec3(box->min);
     //    printf("Max: ");
@@ -151,63 +151,63 @@ inline int rayBoxIntersection(Ray* ray, BBox* box, float* min, float* max)
   return 0;
 }
 
-inline void testBVH(Ray* ray, BvhNode* node, Vec3 intersectionPoint, float* distance, Triangle* closestTriangle)
+Triangle* testBVH(Ray* ray, BvhNode* node, Vec3 intersectionPoint, float* distance)
 {
-
+  Triangle* tempClosestTri;
+  float td = ray->distance;
   if(node->children && node->numChildren > 0){
     //Node has child nodes, we'll go into them until we reach the bottom of the tree
 #ifdef DEBUG
     printf("Bvh node iterating through (%d) children\n", node->numChildren);
 #endif
     for(unsigned int childIdx = 0; childIdx < node->numChildren; childIdx++)
+    {
+      Triangle* ttct = testBVH(ray, &node->children[childIdx], intersectionPoint, distance);
+      if(td < ray->distance)
       {
-	testBVH(ray, &node->children[childIdx], intersectionPoint, distance, closestTriangle);
+        td = ray->distance;
+        tempClosestTri = ttct;        
       }
+    }
   }
-
 
   //see if we intersect the bounding box of the node
   Vec2 bounds;
-  //  printVec3(node->boundingBox.min);
-  //  printVec3(node->boundingBox.max);
   if(rayBoxIntersection(ray, &node->boundingBox, &bounds[0], &bounds[1])){
     //if we do intersect, go through the triangles of the node and test for intersections with them
     //    printf("Ray box intersection\n");
     if(node->triangles != NULL && node->numTriangles > 0){
-      for(unsigned int triangleIdx = 0; triangleIdx < node->numTriangles; triangleIdx++){
-	Triangle* triangle = &node->triangles[triangleIdx];
 
-	//Calculate normalised device coordinates
-	Vec3 ndcVert0, ndcVert1, ndcVert2;
+      for(unsigned int triangleIdx = 0; triangleIdx < node->numTriangles; triangleIdx++){
+	      Triangle* triangle = &node->triangles[triangleIdx];
+
+        //Calculate normalised device coordinates
+        Vec3 ndcVert0, ndcVert1, ndcVert2;
 #ifdef RELATIVE_VERTS
-	/*
-	  vec3Normalise(triangle->verts[0].transformedPosition, ndcVert0);
-	vec3Normalise(triangle->verts[1].transformedPosition, ndcVert1);
-	vec3Normalise(triangle->verts[2].transformedPosition, ndcVert2);
-	printVec3(triangle->verts[0].transformedPosition);
-	printVec3(triangle->verts[1].transformedPosition);
-	printVec3(triangle->verts[2].transformedPosition);
-	printVec3(ndcVert0);
-	printVec3(ndcVert1);
-	printVec3(ndcVert2);
-	printf("\n");
-	if(triangleIntersect(ndcVert0, ndcVert1, ndcVert2, ray, intersectionPoint)){
-	*/
-	if(triangleIntersect(triangle->verts[0].transformedPosition, triangle->verts[1].transformedPosition,
-			     triangle->verts[2].transformedPosition, ray, intersectionPoint)){
+        
+        vec3Normalise(triangle->verts[0].transformedPosition, ndcVert0);
+        vec3Normalise(triangle->verts[1].transformedPosition, ndcVert1);
+        vec3Normalise(triangle->verts[2].transformedPosition, ndcVert2);
+        //if(triangleIntersect(ndcVert0, ndcVert1, ndcVert2, ray, intersectionPoint)){
+        
+        if(triangleIntersect(triangle->verts[0].transformedPosition, triangle->verts[1].transformedPosition,
+                triangle->verts[2].transformedPosition, ray, intersectionPoint)){
 #else
-	if(triangleIntersect(triangle->verts[0].position, triangle->verts[1].position, triangle->verts[2].position, ray, intersectionPoint)){
+	      if(triangleIntersect(triangle->verts[0].position, triangle->verts[1].position, triangle->verts[2].position, ray, intersectionPoint)){
 #endif
 
-	  //if we intersect with the triangle, check if its the closes triangle we've hit so far. If so mark it.
-	  if(ray->distance < *distance){//if its closer, mark it
-	    //printf("Curent min distance %f\n", *distance);
-	    //printf("intersection distance %f\n", ray->distance);
-	    closestTriangle = triangle;
-	    *distance = ray->distance;
-	  }
-	}
-      }
+          //if we intersect with the triangle, check if its the closes triangle we've hit so far. If so mark it.
+          if(ray->distance < *distance){//if its closer, mark it
+            //printf("Curent min distance %f\n", *distance);
+            //printf("intersection distance %f\n", ray->distance);
+            //tempClosestTri = &node->triangles[triangleIdx];
+            //return tempClosestTri;
+            return &node->triangles[triangleIdx];
+	        }
+	      }
+      }      
     }
+
   }
+  return NULL;
 }

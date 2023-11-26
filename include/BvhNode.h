@@ -23,6 +23,6 @@ void bvhNodeFree(BvhNode* node);
 void bvhAddChild(BvhNode* node, BvhNode* child);
 void bvhAddTriangle(BvhNode* node, Triangle triangle);
 int rayBoxIntersection(Ray* ray, BBox* box, float* min, float* max);
-void testBVH(Ray* ray, BvhNode* node, Vec3 intersectionPoint, float* distance, Triangle* closestTriangle);
+Triangle* testBVH(Ray* ray, BvhNode* node, Vec3 intersectionPoint, float* distance);
 
 #endif

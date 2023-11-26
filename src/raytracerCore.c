@@ -56,9 +56,9 @@ int main()
   Vec3 red = {255,128,128};
   Vec3 green = {128,255,128};
   Vec3 blue = {128,128,255};
-  Vec3 grey = {100,100,100};
-  Vec3 white = {255,255,255};
-  Vec3 dark = {20,20,20};
+  //Vec3 grey = {100,100,100};
+  //Vec3 white = {255,255,255};
+  //Vec3 dark = {20,20,20};
 
   Vec3 normal = {1,1,1};
   //Generate the vertices list
@@ -121,6 +121,8 @@ int main()
 
 
   bvhAddTriangle(rootNode, triangles[0]);
+  bvhAddTriangle(rootNode, triangles[1]);
+  bvhAddTriangle(rootNode, triangles[2]);
 
 
   Camera camera = cameraGen((Vec3){0,0,0}, (Vec3){0,0,100}, (Vec3){0,1,0}, 30, fbDescriptor[WIDTH]/fbDescriptor[HEIGHT]);
