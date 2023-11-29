@@ -25,18 +25,24 @@ void traceRays(BvhNode* bvhNode, Camera* camera, RayHitBuffer rayHitBuffer, RayH
 			vec3Add(camera->forwards, ija, ijza);
 			vec3Normalise(ijza, ijza);
 			float distance = 500000;//distance limit something big
-			//	  printVec3(ijza);
 			//Ray ray = rayInit((Vec3){i,j,camera->origin[2]}, ijza, distance);
 			Ray ray = rayInit((Vec3){i,j,0}, (Vec3){0,0,1}, distance);
 			//Test the ray against the BvhNode
 			Vec3 intersectionPoint;//This is the place in space where the ray intersects with the triangle
 			
 			Triangle* hitTriangle = testBVH(&ray, bvhNode, intersectionPoint, &distance);
+			if(hitTriangle)
+			{
+				rayHitBuffer[((j * fbDescriptor[WIDTH]) + i)] = hitTriangle;
+				memcpy(rayHitpointBuffer[((j * fbDescriptor[WIDTH]) + i)], intersectionPoint, sizeof(Vec3));				
+			}
+			/*
 			if(ray.distance < distance){
 				//ray hit something inside the Bvh.
 				rayHitBuffer[((j * fbDescriptor[WIDTH]) + i)] = hitTriangle;
 				memcpy(rayHitpointBuffer[((j * fbDescriptor[WIDTH]) + i)], intersectionPoint, sizeof(Vec3));
 			}
+			*/
 			pxCount++;
 		}
 	}
@@ -76,13 +82,22 @@ inline void shading(FrameBuffer frameBuffer,  RayHitBuffer rayHitBuffer, RayHitp
 	    Vertex* vert0 = &triangle->verts[0]; Vertex* vert1 = &triangle->verts[1]; Vertex* vert2 = &triangle->verts[2];
 	    float wv[3];//barrycentric cords
 
-#ifdef RELATIVE_VERTS
-	    /*	    Vec3 tVert0Pos, tVert1Pos, tVert2Pos;
-	    vec3Add(vert0->position, triangle->pos, tVert0Pos);
-	    vec3Add(vert1->position, triangle->pos, tVert1Pos);
-	    vec3Add(vert2->position, triangle->pos, tVert2Pos);
-	    */
+#ifdef RELATIVE_VERTS    
+
+#ifndef RUNTIME_VERT_TRANSFORM
+		///Use when tranformed pos is generated at update time
+		/////////////////
+		///Do the transform at triangle gen time
 	    barycentricCoords(wv, vert0->transformedPosition, vert1->transformedPosition, vert2->transformedPosition, hitpoint);//calculate barycentric coords in the triangle
+
+		///Use when the transform is done at render time
+#else
+	    Vec3 tVert0Pos, tVert1Pos, tVert2Pos;
+	    vec3Add(vert0->position, triangle->position, tVert0Pos);
+	    vec3Add(vert1->position, triangle->position, tVert1Pos);
+	    vec3Add(vert2->position, triangle->position, tVert2Pos);
+		barycentricCoords(wv, tVert0Pos, tVert1Pos, tVert2Pos, hitpoint);//calculate barycentric coords in the triangle
+#endif
 #else
 	    barycentricCoords(wv, vert0->position, vert1->position, vert2->position, hitpoint);
 #endif
@@ -90,12 +105,14 @@ inline void shading(FrameBuffer frameBuffer,  RayHitBuffer rayHitBuffer, RayHitp
 	    //if the triangle isn't textured; use the barycentric coords to weight/interpolate the colours of the verts.
 	    if(triangle->texture == NULL) {
 	      //write the colours to the framebuffer
-	      frameBuffer[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL] + 0] = (wv[0] * (float)vert0->colour[0]) + (wv[1] * (float)vert1->colour[0]) + (wv[2] * (float)vert2->colour[0]);
-	      frameBuffer[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL] + 1] = (wv[0] * (float)vert0->colour[1]) + (wv[1] * (float)vert1->colour[1]) + (wv[2] * (float)vert2->colour[1]);
-	      frameBuffer[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL] + 2] = (wv[0] * (float)vert0->colour[2]) + (wv[1] * (float)vert1->colour[2]) + (wv[2] * (float)vert2->colour[2]);
+		  unsigned char redPx = ((wv[0] * vert0->colour[0]) + (wv[1] * vert1->colour[0]) + (wv[2] * vert2->colour[0]));
+		  unsigned char greenPx = ((wv[0] * vert0->colour[1]) + (wv[1] * vert1->colour[1]) + (wv[2] * vert2->colour[1]));
+		  unsigned char bluePx = ((wv[0] * vert0->colour[2]) + (wv[1] * vert1->colour[2]) + (wv[2] * vert2->colour[2]));
+	      frameBuffer[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL] + 0] = redPx;
+	      frameBuffer[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL] + 1] = greenPx;
+	      frameBuffer[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL] + 2] = bluePx;
 	    }
 	    else {//use the barycentric coords to interpolate the texture coords
-	      Vec2 texCords;
 	      int u = (int)(wv[0] * vert0->texCords[0]) + (wv[1] * vert1->texCords[0]) + (wv[2] * vert2->texCords[0]);
 	      int v = (int)(wv[0] * vert0->texCords[1]) + (wv[1] * vert1->texCords[1]) + (wv[2] * vert2->texCords[1]);
 	      //sample the texture at the point of intersection

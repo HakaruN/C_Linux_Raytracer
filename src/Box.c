@@ -3,7 +3,7 @@
 
 inline BBox* genBox(Vec3 min, Vec3 max)
 {
-  BBox* b = malloc(sizeof(BBox));
+  BBox* b = (BBox*)malloc(sizeof(BBox));
   #ifdef DEBUG
   printf("Generating box\n");
   printVec3(min);

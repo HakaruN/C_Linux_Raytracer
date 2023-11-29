@@ -1,6 +1,6 @@
 #include "../include/Texture.h"
 
-Texture loadTexture(char* filename, int desiredChannels)
+Texture loadTexture(const char* filename, int desiredChannels)
 {
   int width, height, channels;  stbi_set_flip_vertically_on_load(1);
   Texture t;

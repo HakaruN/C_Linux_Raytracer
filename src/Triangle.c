@@ -72,7 +72,6 @@ inline void barycentricCoords(Vec3 out, Vec3 vert0, Vec3 vert1, Vec3 vert2, Vec3
 int triangleIntersect(Vec3 v0, Vec3 v1, Vec3 v2, Ray* ray, Vec3 intersectionPoint)
 {
   const float EPSILON = 0.000001;
-  intersectionPoint[0] = 0; intersectionPoint[1] = 0; intersectionPoint[2] = 0;
   Vec3  h, q;
   float a, f, u, v;
 
@@ -96,11 +95,18 @@ int triangleIntersect(Vec3 v0, Vec3 v1, Vec3 v2, Ray* ray, Vec3 intersectionPoin
   v = f * dot(ray->direction, q);
   if(v<0.0 || u + v > 1.0)
     return 0;
-  ray->distance = f * dot(edge2, q);
+
+  float newDist = f * dot(edge2, q);
+  if(newDist < ray->distance)
+  {
+    ray->distance = newDist;
 
   Vec3 scaled;
   vec3ScalarMult(ray->direction, ray->distance, scaled);
   vec3Add(ray->origin, scaled, intersectionPoint);
 
   return 1;
+  }
+  return 0;
+
 }

@@ -42,7 +42,6 @@ void verticesAddVert(Vertices* verts, Vertex v)
 
 inline Vertex* verticesGetVert(Vertices* verts, unsigned int vId)
 {
-  printf("hello\n");
   if(vId >= 0 && vId < verts->numVerts)
     return &verts->vertices[vId];
   else

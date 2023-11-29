@@ -2,7 +2,7 @@
 
 BvhNode* bvhNodeGen(unsigned int childrenSize, unsigned int trianglesSize, BBox boundingBox)
 {
-  BvhNode* node = malloc(sizeof(BvhNode));
+  BvhNode* node = (BvhNode*)malloc(sizeof(BvhNode));
   if(node){
     memcpy(&(node->boundingBox.min), &boundingBox.min, sizeof(float) * 3);
     memcpy(&(node->boundingBox.max), &boundingBox.max, sizeof(float) * 3);
@@ -10,15 +10,27 @@ BvhNode* bvhNodeGen(unsigned int childrenSize, unsigned int trianglesSize, BBox 
     node->numChildren = 0;
     node->trianglesMax = trianglesSize;
     node->childrenMax = childrenSize;
-    node->triangles = malloc(trianglesSize * sizeof(Triangle));
-    if(node->triangles == NULL)
-      return NULL;
 
-    node->children = malloc(childrenSize * sizeof(BvhNode));
-    if(node->children == NULL) {
-      free(node->triangles);
+    //allocate the space for the triangles
+    node->triangles = malloc(trianglesSize * sizeof(Triangle));
+    if(node->triangles == NULL)//if the triangles couldn't be allocated then deallocate the node and return null
+    {
+      free(node);
       return NULL;
     }
+
+    //allocate the space for the children nodes
+    node->children = malloc(childrenSize * sizeof(BvhNode));
+    if(node->children == NULL) {//if the children couldn't be allocated then deallocate the node & tris and return null
+      free(node->triangles);
+      free(node);
+      return NULL;
+    }
+
+    //init the children array to NULL
+    for(int i = 0; i < childrenSize; i++)
+      node->children[i] = NULL;
+
     return node;
   }
   return NULL;
@@ -32,19 +44,21 @@ void bvhNodeFree(BvhNode* node)
     //This stops nodes getting orphaned.
     if(node->numChildren > 0) {
       if(node->children) {
-	for(int i = 0; i < node->numChildren; i++)
-	  bvhNodeFree(&node->children[i]);
+	      for(int i = 0; i < node->numChildren; i++){
+          if(node->children[i])//the child ptr is actually pointing at something
+	          bvhNodeFree(node->children[i]);
+        }
       }
-
     }
+
     //We have no children below us so we can start cleaning ourselves up
     free(node->children);
     node->children = NULL;
 
     if(node->numTriangles > 0){
       if(node->triangles) {//cleanup the triangles
-	for(int i = 0; i < node->numTriangles; i++)
-	  freeTriangle(&node->triangles[i]);
+	      for(unsigned int i = 0; i < node->numTriangles; i++)
+	        freeTriangle(&node->triangles[i]);
       }
     }
     //dealloc the triangles
@@ -67,16 +81,20 @@ void bvhAddChild(BvhNode* node, BvhNode* child)
     //checking if we need to reallocate more space as it could be full
     if(node->numChildren >= node->childrenMax) {
       //make more space
-      BvhNode* temp = malloc((node->numChildren + numToAllocate) * sizeof(BvhNode));
+      BvhNode** temp = malloc((node->numChildren + numToAllocate) * sizeof(BvhNode));
+      for(int i = 0; i < node->numChildren + numToAllocate; i++)
+        temp[i] = NULL;
+
       //copy existing children to the new buffer
       memcpy(temp, node->children, node->numChildren * sizeof(BvhNode));
       //free the old buffer and point the children to the new buffer
       free(node->children);
       node->children = temp;
+      node->childrenMax = node->childrenMax + numToAllocate;//Add space for the new children
     }
 
     //we have space to put the child in the children list
-    node->children[node->numChildren] = *child;
+    node->children[node->numChildren] = child;
     node->numChildren++;
   }
 }
@@ -84,30 +102,30 @@ void bvhAddChild(BvhNode* node, BvhNode* child)
 void bvhAddTriangle(BvhNode* node, Triangle triangle)
 {
   if(node){
-    const unsigned int numToAllocate = 5;//basically just a default val
-    if(!node->triangles){//check that the triangles list is allocated
+    const unsigned int numToAllocate = 2;//basically just a default val
+    if(!node->triangles){//check if the triangles list is not allocated
       node->triangles = malloc(numToAllocate * sizeof(Triangle));
       node->trianglesMax = numToAllocate;
       node->numTriangles = 0;
     }
     if(node->numTriangles >= node->trianglesMax){
-	//need to allocate more space
-	Triangle* temp = malloc((node->numTriangles + numToAllocate) * sizeof(Triangle));
-	//copy the existing triangles into the new buffer
-	memcpy(temp, node->triangles, node->numTriangles * sizeof(Triangle));
-	//free the old buffer and exchange the ptr
-	free(node->triangles);
-	node->triangles = temp;
-      }
+      //need to allocate more space
+      Triangle* temp = malloc((node->numTriangles + numToAllocate) * sizeof(Triangle));
+      //copy the existing triangles into the new buffer
+      memcpy(temp, node->triangles, node->numTriangles * sizeof(Triangle));
+      //free the old buffer and exchange the ptr
+      free(node->triangles);
+      node->triangles = temp;
+      node->trianglesMax = node->trianglesMax + numToAllocate;//Add space for the new triangle(s)
+    }
     //copy the triangle into the buffer
     node->triangles[node->numTriangles] = triangle;
     node->numTriangles++;
   }
 }
 
-inline int rayBoxIntersection(Ray* ray, BBox* box, float* min, float* max)
+inline int rayBoxIntersection(Ray* ray, BBox* box)
 {
-  if(min && max){//is min and max a valid ptr
     Vec3 invDir = {
       1.0f / ray->direction[0],
 		  1.0f / ray->direction[1],
@@ -143,71 +161,58 @@ inline int rayBoxIntersection(Ray* ray, BBox* box, float* min, float* max)
 
     if(tzMax < txMax)
       txMax = tzMax;
-
-    *min = txMin;
-    *max = txMax;
+      
     return 1;
-  }
-  return 0;
 }
 
-Triangle* testBVH(Ray* ray, BvhNode* node, Vec3 intersectionPoint, float* distance)
+
+
+/// @brief bottom up search
+/// @param ray 
+/// @param bvhNode 
+/// @param intersectionPoint 
+/// @param distance 
+/// @return 
+Triangle* testBVH(Ray* ray, BvhNode* bvhNode, Vec3 intersectionPoint, float* distance)
 {
-  Triangle* tempClosestTri;
-  float td = ray->distance;
-  if(node->children && node->numChildren > 0){
-    //Node has child nodes, we'll go into them until we reach the bottom of the tree
-#ifdef DEBUG
-    printf("Bvh node iterating through (%d) children\n", node->numChildren);
-#endif
-    for(unsigned int childIdx = 0; childIdx < node->numChildren; childIdx++)
+  Triangle* closestTri = NULL;
+
+  //recurse into our children to check for intersections
+  int numChildren = bvhNode->numChildren;
+  if(numChildren)
+  {
+    for(int i = 0; i < numChildren; i++)
     {
-      Triangle* ttct = testBVH(ray, &node->children[childIdx], intersectionPoint, distance);
-      if(td < ray->distance)
+      Triangle* triangle = testBVH(ray, bvhNode->children[i], intersectionPoint, distance);
+      if(triangle)
+        closestTri = triangle;
+    }
+  }
+
+  //check us for intersection
+  int numTriangles = bvhNode->numTriangles;
+
+  if(numTriangles)
+  {
+    //check if the ray intersects our bounding box
+    if(rayBoxIntersection(ray, &bvhNode->boundingBox))
+    {
+      for(int k = 0; k < numTriangles; k++)
       {
-        td = ray->distance;
-        tempClosestTri = ttct;        
+        Triangle* triangle = &(bvhNode->triangles[k]);
+#ifdef RELATIVE_VERTS
+        if(triangleIntersect(triangle->verts[0].transformedPosition, triangle->verts[1].transformedPosition, triangle->verts[2].transformedPosition, ray, intersectionPoint))
+#else
+        if(triangleIntersect(triangle->verts[0].position, triangle->verts[1].position, triangle->verts[2].position, ray, intersectionPoint))
+#endif
+        {
+
+            closestTri = triangle;
+        }
       }
     }
   }
 
-  //see if we intersect the bounding box of the node
-  Vec2 bounds;
-  if(rayBoxIntersection(ray, &node->boundingBox, &bounds[0], &bounds[1])){
-    //if we do intersect, go through the triangles of the node and test for intersections with them
-    //    printf("Ray box intersection\n");
-    if(node->triangles != NULL && node->numTriangles > 0){
-
-      for(unsigned int triangleIdx = 0; triangleIdx < node->numTriangles; triangleIdx++){
-	      Triangle* triangle = &node->triangles[triangleIdx];
-
-        //Calculate normalised device coordinates
-        Vec3 ndcVert0, ndcVert1, ndcVert2;
-#ifdef RELATIVE_VERTS
-        
-        vec3Normalise(triangle->verts[0].transformedPosition, ndcVert0);
-        vec3Normalise(triangle->verts[1].transformedPosition, ndcVert1);
-        vec3Normalise(triangle->verts[2].transformedPosition, ndcVert2);
-        //if(triangleIntersect(ndcVert0, ndcVert1, ndcVert2, ray, intersectionPoint)){
-        
-        if(triangleIntersect(triangle->verts[0].transformedPosition, triangle->verts[1].transformedPosition,
-                triangle->verts[2].transformedPosition, ray, intersectionPoint)){
-#else
-	      if(triangleIntersect(triangle->verts[0].position, triangle->verts[1].position, triangle->verts[2].position, ray, intersectionPoint)){
-#endif
-
-          //if we intersect with the triangle, check if its the closes triangle we've hit so far. If so mark it.
-          if(ray->distance < *distance){//if its closer, mark it
-            //printf("Curent min distance %f\n", *distance);
-            //printf("intersection distance %f\n", ray->distance);
-            //tempClosestTri = &node->triangles[triangleIdx];
-            //return tempClosestTri;
-            return &node->triangles[triangleIdx];
-	        }
-	      }
-      }      
-    }
-
-  }
-  return NULL;
+  //return the closest triangle we've found
+  return closestTri;
 }
