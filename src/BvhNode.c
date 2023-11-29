@@ -4,8 +4,8 @@ BvhNode* bvhNodeGen(unsigned int childrenSize, unsigned int trianglesSize, BBox 
 {
   BvhNode* node = (BvhNode*)malloc(sizeof(BvhNode));
   if(node){
-    memcpy(&(node->boundingBox.min), &boundingBox.min, sizeof(Vec3));
-    memcpy(&(node->boundingBox.max), &boundingBox.max, sizeof(Vec3));
+    memcpy(&(node->boundingBox.min), &boundingBox.min, sizeof(float) * 3);
+    memcpy(&(node->boundingBox.max), &boundingBox.max, sizeof(float) * 3);
     node->numTriangles = 0;
     node->numChildren = 0;
     node->trianglesMax = trianglesSize;
@@ -212,7 +212,7 @@ Triangle* testBVH(Ray* ray, BvhNode* bvhNode, Vec3 intersectionPoint)
   if(numTriangles)
   {
     //check if the ray intersects our bounding box
-    if(rayBoxIntersection(ray, &bvhNode->boundingBox))
+    //if(rayBoxIntersection(ray, &bvhNode->boundingBox))
     {
       for(int k = 0; k < numTriangles; k++)
       {

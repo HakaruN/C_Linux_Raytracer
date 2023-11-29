@@ -4,6 +4,7 @@
 
 //#define FX
 
+#ifdef FX
 #define POST_DP_BITS 16
 #define ItoFX(i) i << POST_DP_BITS
 #define FXtoI(i) i >> POST_DP_BITS
@@ -59,5 +60,6 @@ SFX16_16 sFXDiv(SFX16_16 a, SFX16_16 b);
 
 
 */
+#endif
 
 #endif

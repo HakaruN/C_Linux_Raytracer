@@ -1,5 +1,6 @@
 #include "../include/FP.h"
 
+#ifdef FX
 ///Unsigned fixed point
 UFX16_16 ufloatToFixed(float f)
 {
@@ -65,3 +66,4 @@ SFX16_16 sFXDiv(SFX16_16 a, SFX16_16 b)
         return 0b01111111111111111111111111111111;
     return ((int64_t)a << POST_DP_BITS) / (int64_t)b;
 }
+#endif

@@ -197,6 +197,8 @@ int main()
   Vec3 bmax = {400,400,110};
   BBox* rootBox = genBox(bmin, bmax);
   BvhNode* rootNode = bvhNodeGen(8, 3, *rootBox);
+  bvhAddTriangle(rootNode, triangles[0]);
+  bvhAddTriangle(rootNode, triangles[1]);
 
   Vec3 bmin1 = {0,0,10};//{100,100,10};
   Vec3 bmax1 = {400,400,110};//{300,300,110};
@@ -206,8 +208,6 @@ int main()
 
   BBox* box1 = genBox(bmin1, bmax1);
   BvhNode* node1 = bvhNodeGen(8, 3, *box1);
-  bvhAddTriangle(rootNode, triangles[0]);
-  bvhAddTriangle(rootNode, triangles[1]);
   bvhAddTriangle(node1, triangles[2]);
   bvhAddTriangle(node1, triangles[3]);
 
