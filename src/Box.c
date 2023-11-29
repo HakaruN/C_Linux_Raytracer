@@ -3,12 +3,13 @@
 
 inline BBox* genBox(Vec3 min, Vec3 max)
 {
-  BBox* b = malloc(sizeof(BBox));
-  *b[0][0] = min[0];
-  *b[0][1] = min[1];
-  *b[0][2] = min[2];
-  *b[1][0] = max[0];
-  *b[1][1] = max[1];
-  *b[1][2] = max[2];
+  BBox* b = (BBox*)malloc(sizeof(BBox));
+  #ifdef DEBUG
+  printf("Generating box\n");
+  printVec3(min);
+  printVec3(max);
+#endif
+  memcpy(b->min, min, 3 * sizeof(float));
+  memcpy(b->max, max, 3 * sizeof(float));
   return b;
 }

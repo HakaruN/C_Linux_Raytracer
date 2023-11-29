@@ -19,7 +19,7 @@ int doublebuffer = 1;
 
 //Buffer sizes - how many entries we will allocate
 unsigned int numTextures = 10;
-unsigned int numTriangles = 3;
+unsigned int numTriangles = 4;
 FbDescriptor fbDescriptor = {400, 400, 3};//Descriptor for the FB, [0] = WIDTH, [1] = HEIGHT, [2] = #colours per pixel
 
 //how many are allocated
@@ -49,16 +49,16 @@ int main()
   Window* window = createWindow(fbDescriptor[WIDTH], fbDescriptor[HEIGHT], "Raytracer", fullscreen, primMonitor, NULL);
 
   //init the triangle hit buffer and distance buffer
-  rayHitBuffer = malloc(sizeof(unsigned short) * fbDescriptor[WIDTH] * fbDescriptor[HEIGHT]);
+  rayHitBuffer = malloc(sizeof(Triangle*) * fbDescriptor[WIDTH] * fbDescriptor[HEIGHT]);
   rayHitpointBuffer = malloc(sizeof(Vec3) * fbDescriptor[WIDTH] * fbDescriptor[HEIGHT]);
   textures = malloc(sizeof(Texture) * numTextures);
 
   Vec3 red = {255,128,128};
   Vec3 green = {128,255,128};
   Vec3 blue = {128,128,255};
-  Vec3 grey = {100,100,100};
-  Vec3 white = {255,255,255};
-  Vec3 dark = {20,20,20};
+  //Vec3 grey = {100,100,100};
+  //Vec3 white = {255,255,255};
+  //Vec3 dark = {20,20,20};
 
   Vec3 normal = {1,1,1};
   //Generate the vertices list
@@ -81,9 +81,12 @@ int main()
       printf("Error initialising texture list\n");
       return -1;
     }
+
   int numChannels = 3;
-  textures[0] = loadTexture("res/scrot.png", numChannels);
-  textures[1] = loadTexture("res/tex1.jpg", numChannels);
+  const char* tex1Path = "/home/hakaru/Projects/LinuxRT/C_Linux_Raytracer/res/scrot.png";
+  const char* tex2Path = "/home/hakaru/Projects/LinuxRT/C_Linux_Raytracer/res/tex1.jpg";
+  textures[0] = loadTexture(tex1Path, numChannels);
+  textures[1] = loadTexture(tex2Path, numChannels);
 
 
   //init triangles
@@ -106,17 +109,34 @@ int main()
       verts[1] = vertexGen((Vec3){300, 100, 5}, normal, red, (Vec2){225, 100});
       verts[2] = vertexGen((Vec3){200, 125, 25}, normal, green, (Vec2){175,150});
       triangles[2] = triangleGen(verts, (Vec3){0, 0, 0}, NULL);
+
+      verts[0] = vertexGen((Vec3){0, 0, 0}, normal, green, (Vec2){0, 0});
+      verts[1] = vertexGen((Vec3){50, 0, 0}, normal, red, (Vec2){textures[1].width, 0});
+      verts[2] = vertexGen((Vec3){50, 50, 0}, normal, blue, (Vec2){textures[1].width/2, textures[1].height});
+      triangles[3] = triangleGen(verts, (Vec3){0, 0, 5}, &textures[1]);
     }
   else
     return -1;
-  /*
+
   //Setup the bvh node
-  BBox* rootBox = genBox((Vec3){0,0,0},(Vec3){10,10,10});
-  BvhNode* rootNode = bvhNodeGen(8, 0, *rootBox);
+  Vec3 bmin = {0,0,10};
+  Vec3 bmax = {400,400,110};
+  BBox* rootBox = genBox(bmin, bmax);
+  BvhNode* rootNode = bvhNodeGen(8, 3, *rootBox);
+
+  Vec3 bmin1 = {0,0,10};//{100,100,10};
+  Vec3 bmax1 = {400,400,110};//{300,300,110};
+  BBox* box1 = genBox(bmin1, bmax1);
+  BvhNode* node1 = bvhNodeGen(8, 3, *box1);
+  bvhAddTriangle(rootNode, triangles[0]);
+  bvhAddTriangle(rootNode, triangles[1]);
+  bvhAddTriangle(node1, triangles[2]);
+  bvhAddTriangle(node1, triangles[3]);
+
+
+  bvhAddChild(rootNode, node1);
   if(rootNode)
     printf("BVH root inited\n");
-  */
-
   Camera camera = cameraGen((Vec3){0,0,0}, (Vec3){0,0,100}, (Vec3){0,1,0}, 30, fbDescriptor[WIDTH]/fbDescriptor[HEIGHT]);
 
   //setup framebuffer
@@ -129,20 +149,22 @@ int main()
   float invWidthMinus1 = 1.0f / (fbDescriptor[WIDTH] - 1.0f);
   while(!glfwWindowShouldClose(window->window))
     {
+      #ifdef FRAME_TIMINGS
       clock_t start = clock(), diff;
+      #endif
 
       ////Rendering pipeline
       //Clear the screen
       glClear(GL_COLOR_BUFFER_BIT);
 
       //Clear the pixel's triangle hit buffer
-      memset(rayHitBuffer, 0xFFFF, fbDescriptor[WIDTH] * fbDescriptor[HEIGHT] * sizeof(unsigned short));
+      memset(rayHitBuffer, 0x00000000, fbDescriptor[WIDTH] * fbDescriptor[HEIGHT] * sizeof(Triangle*));
 
       ///Fire rays through each pixel and see what we hit (marked in the rayHitBuffer previously cleared)
-      traceRays(triangles, numTriangles, &camera, rayHitBuffer, rayHitpointBuffer, fbDescriptor, invHeightMinus1, invWidthMinus1);
+      traceRays(rootNode, &camera, rayHitBuffer, rayHitpointBuffer, fbDescriptor, invHeightMinus1, invWidthMinus1);
 
       ///Shading, sample the texture or interpolate vertex colours of where we hit and put it in the framebuffer
-      shading(triangles, frameBuffer, rayHitBuffer, rayHitpointBuffer, fbDescriptor);
+      shading(frameBuffer, rayHitBuffer, rayHitpointBuffer, fbDescriptor);
 
       //Copy framebuffer to GPU
       glDrawPixels(fbDescriptor[WIDTH], fbDescriptor[HEIGHT], GL_RGB, GL_UNSIGNED_BYTE, frameBuffer);
@@ -152,9 +174,12 @@ int main()
 
       //poll and process events
       glfwPollEvents();
+      
+      #ifdef FRAME_TIMINGS
       diff = clock() - start;
       int msec = diff * 1000 /CLOCKS_PER_SEC;
       printf("Frametime: %d\n", msec%1000);
+      #endif
     }
 
 

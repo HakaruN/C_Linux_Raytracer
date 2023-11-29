@@ -21,7 +21,7 @@ typedef struct Texture {
   unsigned int sizeBytes;
 } Texture;
 
-Texture loadTexture(char* filename, int desiredChannels);
+Texture loadTexture(const char* filename, int desiredChannels);
 void freeTexture(Texture* tex);
 
 

@@ -8,10 +8,20 @@ Triangle triangleGen(Vertex* verts, Vec3 pos, Texture* texture)
   else
     t.texture = NULL;
   if(verts){
-    memcpy(t.verts, verts, 3 * sizeof(Vertex));
-    memcpy(t.pos, pos, sizeof(Vec3));
-    return t;
+    memcpy(t.verts, verts, 3 * sizeof(Vertex));//copy the verts
+    ////Transform the triangle's vert pos now so doesn't happen at render-time
+    //Transform the verts pos with the triangle pos and store them in the verts transformedPos
+    Vec3 tVert0Pos, tVert1Pos, tVert2Pos;
+    vec3Add(t.verts[0].position, pos, tVert0Pos);
+    vec3Add(t.verts[1].position, pos, tVert1Pos);
+    vec3Add(t.verts[2].position, pos, tVert2Pos);
+    memcpy(t.verts[0].transformedPosition, tVert0Pos, sizeof(Vec3));
+    memcpy(t.verts[1].transformedPosition, tVert1Pos, sizeof(Vec3));
+    memcpy(t.verts[2].transformedPosition, tVert2Pos, sizeof(Vec3));
+
+    memcpy(t.position, pos, sizeof(Vec3));
     }
+  return t;
 }
 
 
@@ -59,10 +69,9 @@ inline void barycentricCoords(Vec3 out, Vec3 vert0, Vec3 vert1, Vec3 vert2, Vec3
   //  float wv3 = 1 - wv1 - wv2;
 }
 
-int triangleIntersect(Vec3 v0, Vec3 v1, Vec3 v2, Ray* ray,  Vec3 intersectionPoint)
+int triangleIntersect(Vec3 v0, Vec3 v1, Vec3 v2, Ray* ray, Vec3 intersectionPoint)
 {
   const float EPSILON = 0.000001;
-  intersectionPoint[0] = 0; intersectionPoint[1] = 0; intersectionPoint[2] = 0;
   Vec3  h, q;
   float a, f, u, v;
 
@@ -86,11 +95,18 @@ int triangleIntersect(Vec3 v0, Vec3 v1, Vec3 v2, Ray* ray,  Vec3 intersectionPoi
   v = f * dot(ray->direction, q);
   if(v<0.0 || u + v > 1.0)
     return 0;
-  ray->distance = f * dot(edge2, q);
+
+  float newDist = f * dot(edge2, q);
+  if(newDist < ray->distance)
+  {
+    ray->distance = newDist;
 
   Vec3 scaled;
   vec3ScalarMult(ray->direction, ray->distance, scaled);
   vec3Add(ray->origin, scaled, intersectionPoint);
 
   return 1;
+  }
+  return 0;
+
 }
