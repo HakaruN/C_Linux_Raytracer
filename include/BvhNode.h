@@ -8,7 +8,7 @@
 
 typedef struct BvhNode{
   BBox boundingBox;//The bounding volume of this node
-  struct BvhNode** children;//Array of BVH node pointers
+  struct BvhNode** children;//Array of BVH node pointers  
   Triangle* triangles;//List of triangles in this node
   unsigned int numChildren, numTriangles;//num triangles and nodes in the lists
   unsigned int childrenMax, trianglesMax;//max number (allocated space)

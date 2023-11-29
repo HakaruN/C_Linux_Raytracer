@@ -8,6 +8,8 @@
 #define RELATIVE_VERTS
 //RUNTIME_VERT_TRANSFORM
 
+#define FRAME_TIMINGS
+
 #ifdef DEBUG
 #include <stdio.h>
 #endif

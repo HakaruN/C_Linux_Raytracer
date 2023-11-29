@@ -30,19 +30,14 @@ void traceRays(BvhNode* bvhNode, Camera* camera, RayHitBuffer rayHitBuffer, RayH
 			//Test the ray against the BvhNode
 			Vec3 intersectionPoint;//This is the place in space where the ray intersects with the triangle
 			
-			Triangle* hitTriangle = testBVH(&ray, bvhNode, intersectionPoint, &distance);
-			if(hitTriangle)
-			{
-				rayHitBuffer[((j * fbDescriptor[WIDTH]) + i)] = hitTriangle;
-				memcpy(rayHitpointBuffer[((j * fbDescriptor[WIDTH]) + i)], intersectionPoint, sizeof(Vec3));				
-			}
-			/*
-			if(ray.distance < distance){
+			Triangle* hitTriangle = NULL;
+			hitTriangle = testBVH(&ray, bvhNode, intersectionPoint, &distance);
+			
+			if(hitTriangle){ 
 				//ray hit something inside the Bvh.
 				rayHitBuffer[((j * fbDescriptor[WIDTH]) + i)] = hitTriangle;
 				memcpy(rayHitpointBuffer[((j * fbDescriptor[WIDTH]) + i)], intersectionPoint, sizeof(Vec3));
 			}
-			*/
 			pxCount++;
 		}
 	}

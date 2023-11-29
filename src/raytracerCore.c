@@ -149,7 +149,9 @@ int main()
   float invWidthMinus1 = 1.0f / (fbDescriptor[WIDTH] - 1.0f);
   while(!glfwWindowShouldClose(window->window))
     {
-      //clock_t start = clock(), diff;
+      #ifdef FRAME_TIMINGS
+      clock_t start = clock(), diff;
+      #endif
 
       ////Rendering pipeline
       //Clear the screen
@@ -172,9 +174,12 @@ int main()
 
       //poll and process events
       glfwPollEvents();
-      //diff = clock() - start;
-      //int msec = diff * 1000 /CLOCKS_PER_SEC;
-            //printf("Frametime: %d\n", msec%1000);
+      
+      #ifdef FRAME_TIMINGS
+      diff = clock() - start;
+      int msec = diff * 1000 /CLOCKS_PER_SEC;
+      printf("Frametime: %d\n", msec%1000);
+      #endif
     }
 
 

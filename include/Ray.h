@@ -7,7 +7,6 @@
 typedef struct {
   Vec3 origin;
   Vec3 direction;
-  float closestDistance;
   float distance;
 } Ray;
 
