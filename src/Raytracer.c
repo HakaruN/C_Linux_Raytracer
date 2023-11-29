@@ -24,7 +24,7 @@ void traceRays(BvhNode* bvhNode, Camera* camera, RayHitBuffer rayHitBuffer, RayH
 			Vec3 ijza;
 			vec3Add(camera->forwards, ija, ijza);
 			vec3Normalise(ijza, ijza);
-			float distance = 500000;//distance limit something big
+			float distance = 500000;//distance limit something big. Nothing beond here will be rendered
 			//Ray ray = rayInit((Vec3){i,j,camera->origin[2]}, ijza, distance);
 			Ray ray = rayInit((Vec3){i,j,0}, (Vec3){0,0,1}, distance);
 			//Test the ray against the BvhNode
