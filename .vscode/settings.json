@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "texture.h": "c"
+        "texture.h": "c",
+        "stdint.h": "c",
+        "fp.h": "c"
     }
 }

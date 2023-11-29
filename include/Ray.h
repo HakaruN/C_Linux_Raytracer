@@ -7,9 +7,17 @@
 typedef struct {
   Vec3 origin;
   Vec3 direction;
-  float distance;
+  #ifdef FX
+    UFX16_16 distance;
+  #else
+    float distance;
+  #endif
 } Ray;
 
-Ray rayInit(Vec3 origin, Vec3 direction, float distance);
+#ifdef FX
+  Ray rayInit(Vec3 origin, Vec3 direction, UFX16_16 distance);
+#else
+  Ray rayInit(Vec3 origin, Vec3 direction, float distance);
+#endif
 
 #endif

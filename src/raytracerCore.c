@@ -7,6 +7,7 @@
 #include "../include/Ray.h"
 #include "../include/Texture.h"
 #include "../include/Camera.h"
+#include "../include/FP.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -32,6 +33,38 @@ Vertex* verices;
 
 int main()
 {
+
+/*
+    UFX16_16 ua = ufloatToFixed(0.000001);
+    UFX16_16 ub = ufloatToFixed(1.05f);
+    float ui = ufixedToFloat(ua);
+    float uj = ufloatToFixed(ub);
+
+    UFX16_16 uc = uFXMul(ua, ub);
+    float uk = ufixedToFloat(uc);
+
+    UFX16_16 ud = uFXDiv(ua, ub);
+    float ul = ufixedToFloat(ud);
+
+    SFX16_16 sa = sfloatToFixed(60000.f);
+    SFX16_16 sb = sfloatToFixed(1.05f);
+    float si = sfixedToFloat(sa);
+    float sj = sfloatToFixed(sb);
+
+    SFX16_16 sc = sFXMul(sa, sb);
+    float sk = sfixedToFloat(sc);
+
+    SFX16_16 sd = sFXDiv(sa, sb);
+    float sl = sfixedToFloat(sd);
+
+    float uab = ufixedToFloat(ua + sb);
+
+    UFX16_16 i = 5 << 16;
+    */
+
+
+
+
   //Init glfw and setup monitor/window
   int initCode = glfwInit();
   if(!initCode)
@@ -61,19 +94,16 @@ int main()
   //Vec3 dark = {20,20,20};
 
   Vec3 normal = {1,1,1};
-  //Generate the vertices list
+  //Generate the vertices list -- unused atm
   const unsigned int vLen = 20;//num verts
   Vertices vertices = verticesGen(vLen);
+
   if(vertices.vertices != NULL)
     printf("Vertices buffer generated\n");
   else{
     printf("Vertices buffer failed to gen\n");
     return -1;}
 
-
-  verticesAddVert(&vertices, vertexGen((Vec3){-50, 0, 0}, normal, red, (Vec2){0, 0}));
-  verticesAddVert(&vertices, vertexGen((Vec3){50, 0, 0}, normal, green, (Vec2){100, 0}));
-  verticesAddVert(&vertices, vertexGen((Vec3){0, 100, 0}, normal, blue, (Vec2){0, 100}));
 
   //load some textures
   if(!textures)
@@ -95,9 +125,30 @@ int main()
   Vertex verts[3];
   if(triangles)
     {
-      verts[0] = *verticesGetVert(&vertices, 0);
-      verts[1] = *verticesGetVert(&vertices, 1);
-      verts[2] = *verticesGetVert(&vertices, 2);
+      #ifdef FX
+      verts[0] = vertexGen((Vec3){ItoFX(-50), 0, 0}, normal, red, (Vec2){0, 0});
+      verts[1] = vertexGen((Vec3){ItoFX(50), 0, 0}, normal, green, (Vec2){ItoFX(100), 0});
+      verts[2] = vertexGen((Vec3){0, ItoFX(100), 0}, normal, blue, (Vec2){0, ItoFX(100)});
+      triangles[0] = triangleGen(verts, (Vec3){200, 200, 100}, &textures[0]);
+
+      verts[0] = vertexGen((Vec3){ItoFX(-50), 0, 0}, normal, green, (Vec2){0, 0});
+      verts[1] = vertexGen((Vec3){ItoFX(50), 0, 0}, normal, red, (Vec2){ItoFX(textures[1].width), 0});
+      verts[2] = vertexGen((Vec3){0, ItoFX(50), 0}, normal, blue, (Vec2){ItoFX(textures[1].width/2), ItoFX(textures[1].height)});
+      triangles[1] = triangleGen(verts, (Vec3){ItoFX(100), ItoFX(100), ItoFX(5)}, &textures[1]);
+
+      verts[0] = vertexGen((Vec3){ItoFX(100), ItoFX(50), ItoFX(5)}, normal, blue, (Vec2){ItoFX(125), ItoFX(100)});
+      verts[1] = vertexGen((Vec3){ItoFX(300), ItoFX(100), ItoFX(5)}, normal, red, (Vec2){ItoFX(225), ItoFX(100)});
+      verts[2] = vertexGen((Vec3){ItoFX(200), ItoFX(125), ItoFX(25)}, normal, green, (Vec2){ItoFX(175),ItoFX(150)});
+      triangles[2] = triangleGen(verts, (Vec3){0, 0, 0}, NULL);
+
+      verts[0] = vertexGen((Vec3){0, 0, 0}, normal, green, (Vec2){0, 0});
+      verts[1] = vertexGen((Vec3){ItoFX(50), 0, 0}, normal, red, (Vec2){ItoFX(textures[1].width), 0});
+      verts[2] = vertexGen((Vec3){ItoFX(50), ItoFX(50), 0}, normal, blue, (Vec2){ItoFX(textures[1].width/2), ItoFX(textures[1].height)});
+      triangles[3] = triangleGen(verts, (Vec3){0, 0, ItoFX(5)}, &textures[1]);
+      #else
+      verts[0] = vertexGen((Vec3){-50, 0, 0}, normal, red, (Vec2){0, 0});
+      verts[1] = vertexGen((Vec3){50, 0, 0}, normal, green, (Vec2){100, 0});
+      verts[2] = vertexGen((Vec3){0, 100, 0}, normal, blue, (Vec2){0, 100});
       triangles[0] = triangleGen(verts, (Vec3){200, 200, 100}, &textures[0]);
 
       verts[0] = vertexGen((Vec3){-50, 0, 0}, normal, green, (Vec2){0, 0});
@@ -114,11 +165,21 @@ int main()
       verts[1] = vertexGen((Vec3){50, 0, 0}, normal, red, (Vec2){textures[1].width, 0});
       verts[2] = vertexGen((Vec3){50, 50, 0}, normal, blue, (Vec2){textures[1].width/2, textures[1].height});
       triangles[3] = triangleGen(verts, (Vec3){0, 0, 5}, &textures[1]);
+      #endif
     }
   else
     return -1;
 
   //Setup the bvh node
+  #ifdef FX
+  Vec3 bmin = {ItoFX(0),ItoFX(0),ItoFX(10)};
+  Vec3 bmax = {ItoFX(400),ItoFX(400),ItoFX(110)};
+  BBox* rootBox = genBox(bmin, bmax);
+  BvhNode* rootNode = bvhNodeGen(8, 3, *rootBox);
+
+  Vec3 bmin1 = {ItoFX(0),ItoFX(0),ItoFX(10)};//{100,100,10};
+  Vec3 bmax1 = {ItoFX(400),ItoFX(400),ItoFX(110)};//{300,300,110};
+  #else
   Vec3 bmin = {0,0,10};
   Vec3 bmax = {400,400,110};
   BBox* rootBox = genBox(bmin, bmax);
@@ -126,6 +187,10 @@ int main()
 
   Vec3 bmin1 = {0,0,10};//{100,100,10};
   Vec3 bmax1 = {400,400,110};//{300,300,110};
+  #endif
+
+
+
   BBox* box1 = genBox(bmin1, bmax1);
   BvhNode* node1 = bvhNodeGen(8, 3, *box1);
   bvhAddTriangle(rootNode, triangles[0]);
@@ -137,7 +202,11 @@ int main()
   bvhAddChild(rootNode, node1);
   if(rootNode)
     printf("BVH root inited\n");
+  #ifdef FX
+  Camera camera = cameraGen((Vec3){0,0,0}, (Vec3){0,0,ItoFX(100)}, (Vec3){0,ItoFX(1),0}, ItoFX(30), fbDescriptor[WIDTH]/fbDescriptor[HEIGHT]);
+  #else
   Camera camera = cameraGen((Vec3){0,0,0}, (Vec3){0,0,100}, (Vec3){0,1,0}, 30, fbDescriptor[WIDTH]/fbDescriptor[HEIGHT]);
+  #endif
 
   //setup framebuffer
   FrameBuffer frameBuffer = createFB(fbDescriptor);

@@ -4,6 +4,7 @@
 #include "Vertex.h"
 #include "Texture.h"
 #include "Ray.h"
+#include "../include/FP.h"
 #include <math.h>
 #include <stdlib.h>
 

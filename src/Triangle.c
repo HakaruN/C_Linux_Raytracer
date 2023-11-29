@@ -1,5 +1,6 @@
 #include "../include/Triangle.h"
 
+
 Triangle triangleGen(Vertex* verts, Vec3 pos, Texture* texture)
 {
   Triangle t;
@@ -40,7 +41,11 @@ inline void barycentricCoords(Vec3 out, Vec3 vert0, Vec3 vert1, Vec3 vert2, Vec3
   //  float* vert0 = t->verts[0].position;
   //  float* vert1 = t->verts[1].position;
   //  float* vert2 = t->verts[2].position;
- #ifdef ALTIVEC
+  #ifdef FX
+  out[0] = sFXDiv(((sFXMul((vert1[1] - vert2[1]), (point[0] - vert2[0]))) + (sFXMul((vert2[0] - vert1[0]), (point[1] - vert2[1])))), ((sFXMul((vert1[1] - vert2[1]), (vert0[0] - vert2[0]))) + (sFXMul((vert2[0] - vert1[0]), (vert0[1] - vert2[1])))));
+  out[1] = sFXDiv(((sFXMul((vert2[1] - vert0[1]), (point[0] - vert2[0]))) + (sFXMul((vert0[0] - vert2[0]), (point[1] - vert2[1])))), ((sFXMul((vert1[1] - vert2[1]), (vert0[0] - vert2[0]))) + (sFXMul((vert2[0] - vert1[0]), (vert0[1] - vert2[1])))));
+  out[2] = 1 - out[0] - out[1];
+  #elif defined ALTIVEC
   vector float leftSub = { vert1[1], vert0[0], vert2[0], vert0[1]};
   vector float rightSub = {vert2[1], vert2[0], vert1[0], vert2[1]};
   vector float wv1LeftSub = {vert1[1], point[0], vert2[0], point[1]};
@@ -69,11 +74,19 @@ inline void barycentricCoords(Vec3 out, Vec3 vert0, Vec3 vert1, Vec3 vert2, Vec3
   //  float wv3 = 1 - wv1 - wv2;
 }
 
+
+
 int triangleIntersect(Vec3 v0, Vec3 v1, Vec3 v2, Ray* ray, Vec3 intersectionPoint)
 {
-  const float EPSILON = 0.000001;
+  #ifdef FX
+    const UFX16_16 EPSILON = 0.000001;
+    SFX16_16 a, f, u, v;
+  #else
+    const float EPSILON = 0.000001;
+    float a, f, u, v;
+  #endif
   Vec3  h, q;
-  float a, f, u, v;
+  
 
   Vec3 edge1 = {v1[0] - v0[0], v1[1] - v0[1], v1[2] - v0[2]};
   Vec3 edge2 = {v2[0] - v0[0], v2[1] - v0[1], v2[2] - v0[2]};
@@ -83,30 +96,52 @@ int triangleIntersect(Vec3 v0, Vec3 v1, Vec3 v2, Ray* ray, Vec3 intersectionPoin
   if(a > -EPSILON && a < EPSILON)
     return 0;
 
-  f = 1.0 / a;
-  //  Vec3 s = {ray->origin[0] - v0[0], ray->origin[1] - v0[1], ray->origin[2] - v0[2]};
+#ifdef FX
+    f = sFXDiv(ItoFX(1), a);
+  #else
+    f = 1.0 / a;
+  #endif
+
+
   Vec3 s;
   vec3Sub(ray->origin, v0, s);
-  u = f * dot(s,h);
-  if(u<0.0 || u >1.0)
-    return 0;
+  #ifdef FX
+    u = sFXMul(f, dot(s,h));
+    if(sfixedToFloat(u) < 0.0f || u > ItoFX(1))
+      return 0;
+  #else
+    u = f * dot(s,h);
+    if(u < 0.0 || u > 1.0f)
+      return 0;
+  #endif
+
+
 
   cross(s, edge1, q);
-  v = f * dot(ray->direction, q);
-  if(v<0.0 || u + v > 1.0)
-    return 0;
+  #ifdef FX
+    v = sFXMul(f, dot(ray->direction, q));
+    if(sfixedToFloat(v) < 0.0f || u + v > ItoFX(1))
+      return 0;
+  #else
+    v = f * dot(ray->direction, q);
+    if(v < 0.0f || u + v > 1.0f)
+      return 0;
+  #endif
 
-  float newDist = f * dot(edge2, q);
+  #ifdef FX
+    UFX16_16 newDist = sFXMul(f, dot(edge2, q));
+  #else
+    float newDist = f * dot(edge2, q);
+  #endif
   if(newDist < ray->distance)
   {
     ray->distance = newDist;
-
-  Vec3 scaled;
-  vec3ScalarMult(ray->direction, ray->distance, scaled);
-  vec3Add(ray->origin, scaled, intersectionPoint);
-
-  return 1;
+    Vec3 scaled;
+    vec3ScalarMult(ray->direction, ray->distance, scaled);
+    vec3Add(ray->origin, scaled, intersectionPoint);
+    return 1;
   }
+
   return 0;
 
 }
