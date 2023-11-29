@@ -139,10 +139,10 @@ int main()
   if(triangles)
     {
       #ifdef FX
-      verts[0] = vertexGen((Vec3){ItoFX(-50), ItoFX(0), ItoFX(0)}, normal, red, (Vec2){ItoFX(0), ItoFX(0)});
-      verts[1] = vertexGen((Vec3){ItoFX(50), ItoFX(0), ItoFX(0)}, normal, green, (Vec2){ItoFX(100), ItoFX(0)});
-      verts[2] = vertexGen((Vec3){ItoFX(0), ItoFX(100), ItoFX(0)}, normal, blue, (Vec2){ItoFX(0), ItoFX(100)});
-      triangles[0] = triangleGen(verts, (Vec3){ItoFX(200), ItoFX(200), ItoFX(100)}, &textures[0]);
+      verts[0] = vertexGen((Vec3){ItoFX(-150), ItoFX(0), ItoFX(0)}, normal, red, (Vec2){ItoFX(0), ItoFX(0)});
+      verts[1] = vertexGen((Vec3){ItoFX(150), ItoFX(0), ItoFX(0)}, normal, green, (Vec2){ItoFX(100), ItoFX(0)});
+      verts[2] = vertexGen((Vec3){ItoFX(0), ItoFX(200), ItoFX(0)}, normal, blue, (Vec2){ItoFX(0), ItoFX(100)});
+      triangles[0] = triangleGen(verts, (Vec3){ItoFX(400), ItoFX(400), ItoFX(100)}, &textures[0]);
 
       verts[0] = vertexGen((Vec3){ItoFX(-50), ItoFX(0), ItoFX(0)}, normal, green, (Vec2){ItoFX(0), ItoFX(0)});
       verts[1] = vertexGen((Vec3){ItoFX(50), ItoFX(0), ItoFX(0)}, normal, red, (Vec2){ItoFX(textures[1].width), ItoFX(0)});

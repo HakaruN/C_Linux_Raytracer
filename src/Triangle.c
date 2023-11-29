@@ -65,7 +65,7 @@ inline void barycentricCoords(Vec3 out, Vec3 vert0, Vec3 vert1, Vec3 vert2, Vec3
   #else
   out[0] = (((vert1[1] - vert2[1]) * (point[0] - vert2[0])) + ((vert2[0] - vert1[0]) * (point[1] - vert2[1]))) / (((vert1[1] - vert2[1]) * (vert0[0] - vert2[0])) + ((vert2[0] - vert1[0]) * (vert0[1] - vert2[1])));
   out[1] = (((vert2[1] - vert0[1]) * (point[0] - vert2[0])) + ((vert0[0] - vert2[0]) * (point[1] - vert2[1]))) / (((vert1[1] - vert2[1]) * (vert0[0] - vert2[0])) + ((vert2[0] - vert1[0]) * (vert0[1] - vert2[1])));
-  out[2] = 1 - out[0] - out[1];
+  out[2] = 1.0f - out[0] - out[1];
   #endif
 
   ///This is the algorithm to provide the barycentric coords
@@ -79,7 +79,8 @@ inline void barycentricCoords(Vec3 out, Vec3 vert0, Vec3 vert1, Vec3 vert2, Vec3
 int triangleIntersect(Vec3 v0, Vec3 v1, Vec3 v2, Ray* ray, Vec3 intersectionPoint)
 {
   #ifdef FX
-    const UFX16_16 EPSILON = 0.0001;
+  const float e = 0.000001;
+    const UFX16_16 EPSILON = sfloatToFixed(e);
     SFX16_16 a, f, u, v;
   #else
     const float EPSILON = 0.000001;
@@ -107,11 +108,11 @@ int triangleIntersect(Vec3 v0, Vec3 v1, Vec3 v2, Ray* ray, Vec3 intersectionPoin
   vec3Sub(ray->origin, v0, s);
   #ifdef FX
     u = sFXMul(f, dot(s,h));
-    if(sfixedToFloat(u) < 0.0f || u > ItoFX(1))
+    if(u < 0 || u > ItoFX(1))
       return 0;
   #else
     u = f * dot(s,h);
-    if(u < 0.0 || u > 1.0f)
+    if(u < 0.0 || u > 1.0)
       return 0;
   #endif
 
@@ -120,11 +121,11 @@ int triangleIntersect(Vec3 v0, Vec3 v1, Vec3 v2, Ray* ray, Vec3 intersectionPoin
   cross(s, edge1, q);
   #ifdef FX
     v = sFXMul(f, dot(ray->direction, q));
-    if(sfixedToFloat(v) < 0.0f || u + v > ItoFX(1))
+    if( v < 0 || u + v > ItoFX(1))
       return 0;
   #else
     v = f * dot(ray->direction, q);
-    if(v < 0.0f || u + v > 1.0f)
+    if(v < 0.0 || u + v > 1.0)
       return 0;
   #endif
 

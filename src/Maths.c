@@ -71,7 +71,7 @@ inline void vec3Normalise(Vec3 vec, Vec3 result)
     SFX16_16 magnitude = sfloatToFixed(frootDot);
     //do 1 division (inv magnitude) then I can do 3 mults with the invMag and not have to do 3 divs with the mag.
     //It makes it a tad faster
-    SFX16_16 invMag =  sFXDiv(sintToSfixed(1), magnitude);
+    SFX16_16 invMag =  sFXDiv(ItoFX(1), magnitude);
     result[0] = sFXMul(vec[0], invMag);
     result[1] = sFXMul(vec[1], invMag);
     result[2] = sFXMul(vec[2], invMag);

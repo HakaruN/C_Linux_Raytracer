@@ -91,7 +91,7 @@ inline void shading(FrameBuffer frameBuffer, RayHitBuffer rayHitBuffer, RayHitpo
 				Vertex *vert0 = &triangle->verts[0];
 				Vertex *vert1 = &triangle->verts[1];
 				Vertex *vert2 = &triangle->verts[2];
-				Vec3 wv;
+				float wv[3];
 
 #ifdef RELATIVE_VERTS
 
