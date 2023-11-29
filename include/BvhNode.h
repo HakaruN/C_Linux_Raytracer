@@ -18,7 +18,6 @@ BvhNode* bvhNodeGen(unsigned int childrenSize, unsigned int trianglesSize, BBox 
 void bvhNodeFree(BvhNode* node);
 void bvhAddChild(BvhNode* node, BvhNode* child);
 void bvhAddTriangle(BvhNode* node, Triangle triangle);
-int rayBoxIntersection(Ray* ray, BBox* box);
 Triangle* testBVH(Ray* ray, BvhNode* node, Vec3 intersectionPoint);
 
 #endif

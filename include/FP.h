@@ -2,7 +2,7 @@
 #define __FP_H__
 #include <stdint.h>
 
-//#define FX
+#define FX
 
 #ifdef FX
 #define POST_DP_BITS 16

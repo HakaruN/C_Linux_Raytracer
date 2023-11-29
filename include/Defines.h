@@ -4,7 +4,7 @@
 
 //#define DEBUG
 
-//#define FIXED_POINT
+//#define FX
 #define RELATIVE_VERTS
 //RUNTIME_VERT_TRANSFORM
 
