@@ -44,7 +44,7 @@ inline void barycentricCoords(Vec3 out, Vec3 vert0, Vec3 vert1, Vec3 vert2, Vec3
   #ifdef FX
   out[0] = sFXDiv(((sFXMul((vert1[1] - vert2[1]), (point[0] - vert2[0]))) + (sFXMul((vert2[0] - vert1[0]), (point[1] - vert2[1])))), ((sFXMul((vert1[1] - vert2[1]), (vert0[0] - vert2[0]))) + (sFXMul((vert2[0] - vert1[0]), (vert0[1] - vert2[1])))));
   out[1] = sFXDiv(((sFXMul((vert2[1] - vert0[1]), (point[0] - vert2[0]))) + (sFXMul((vert0[0] - vert2[0]), (point[1] - vert2[1])))), ((sFXMul((vert1[1] - vert2[1]), (vert0[0] - vert2[0]))) + (sFXMul((vert2[0] - vert1[0]), (vert0[1] - vert2[1])))));
-  out[2] = 1 - out[0] - out[1];
+  out[2] = (ItoFX(1)) - out[0] - out[1];
   #elif defined ALTIVEC
   vector float leftSub = { vert1[1], vert0[0], vert2[0], vert0[1]};
   vector float rightSub = {vert2[1], vert2[0], vert1[0], vert2[1]};
@@ -79,7 +79,7 @@ inline void barycentricCoords(Vec3 out, Vec3 vert0, Vec3 vert1, Vec3 vert2, Vec3
 int triangleIntersect(Vec3 v0, Vec3 v1, Vec3 v2, Ray* ray, Vec3 intersectionPoint)
 {
   #ifdef FX
-    const UFX16_16 EPSILON = 0.000001;
+    const UFX16_16 EPSILON = 0.0001;
     SFX16_16 a, f, u, v;
   #else
     const float EPSILON = 0.000001;

@@ -4,8 +4,8 @@ BvhNode* bvhNodeGen(unsigned int childrenSize, unsigned int trianglesSize, BBox 
 {
   BvhNode* node = (BvhNode*)malloc(sizeof(BvhNode));
   if(node){
-    memcpy(&(node->boundingBox.min), &boundingBox.min, sizeof(float) * 3);
-    memcpy(&(node->boundingBox.max), &boundingBox.max, sizeof(float) * 3);
+    memcpy(&(node->boundingBox.min), &boundingBox.min, sizeof(Vec3));
+    memcpy(&(node->boundingBox.max), &boundingBox.max, sizeof(Vec3));
     node->numTriangles = 0;
     node->numChildren = 0;
     node->trianglesMax = trianglesSize;

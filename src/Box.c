@@ -9,7 +9,7 @@ inline BBox* genBox(Vec3 min, Vec3 max)
   printVec3(min);
   printVec3(max);
 #endif
-  memcpy(b->min, min, 3 * sizeof(float));
-  memcpy(b->max, max, 3 * sizeof(float));
+  memcpy(b->min, min, sizeof(Vec3));
+  memcpy(b->max, max, sizeof(Vec3));
   return b;
 }

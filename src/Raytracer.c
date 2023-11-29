@@ -118,9 +118,9 @@ inline void shading(FrameBuffer frameBuffer, RayHitBuffer rayHitBuffer, RayHitpo
 				{
 // write the colours to the framebuffer
 #ifdef FX
-					unsigned char redPx = (unsigned char)sFixedToSint((sFXMul(wv[0], vert0->colour[0]) + sFXMul(wv[1], vert1->colour[0]) + sFXMul(wv[2], vert2->colour[0])));
-					unsigned char greenPx = (unsigned char)sFixedToSint((sFXMul(wv[0], vert0->colour[1]) + sFXMul(wv[1], vert1->colour[1]) + sFXMul(wv[2], vert2->colour[1])));
-					unsigned char bluePx = (unsigned char)sFixedToSint((sFXMul(wv[0], vert0->colour[2]) + sFXMul(wv[1], vert1->colour[2]) + sFXMul(wv[2], vert2->colour[2])));
+					unsigned char redPx = (unsigned char)sFixedToSint((sFXMul(wv[0], FXtoI(vert0->colour[0])) + sFXMul(wv[1], FXtoI(vert1->colour[0])) + sFXMul(wv[2], FXtoI(vert2->colour[0]))));
+					unsigned char greenPx = (unsigned char)sFixedToSint((sFXMul(wv[0], FXtoI(vert0->colour[1])) + sFXMul(wv[1], FXtoI(vert1->colour[1])) + sFXMul(wv[2], FXtoI(vert2->colour[1]))));
+					unsigned char bluePx = (unsigned char)sFixedToSint((sFXMul(wv[0], FXtoI(vert0->colour[2])) + sFXMul(wv[1], FXtoI(vert1->colour[2])) + sFXMul(wv[2], FXtoI(vert2->colour[2]))));
 #else
 					unsigned char redPx = ((wv[0] * vert0->colour[0]) + (wv[1] * vert1->colour[0]) + (wv[2] * vert2->colour[0]));
 					unsigned char greenPx = ((wv[0] * vert0->colour[1]) + (wv[1] * vert1->colour[1]) + (wv[2] * vert2->colour[1]));

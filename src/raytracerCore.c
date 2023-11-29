@@ -86,14 +86,27 @@ int main()
   rayHitpointBuffer = malloc(sizeof(Vec3) * fbDescriptor[WIDTH] * fbDescriptor[HEIGHT]);
   textures = malloc(sizeof(Texture) * numTextures);
 
+  #ifdef FX
+  Vec3 red = {ItoFX(255),ItoFX(128),ItoFX(128)};
+  Vec3 green = {ItoFX(128),ItoFX(255),ItoFX(128)};
+  Vec3 blue = {ItoFX(128),ItoFX(128),ItoFX(255)};
+  //Vec3 grey = {ItoFX(100),ItoFX(100),ItoFX(100)};
+  //Vec3 white = {ItoFX(255),ItoFX(255),ItoFX(255)};
+  //Vec3 dark = {ItoFX(20),ItoFX(20),ItoFX(20)};
+  #else
   Vec3 red = {255,128,128};
   Vec3 green = {128,255,128};
   Vec3 blue = {128,128,255};
   //Vec3 grey = {100,100,100};
   //Vec3 white = {255,255,255};
   //Vec3 dark = {20,20,20};
-
+  #endif
+  
+  #ifdef FX
+  Vec3 normal = {ItoFX(1),ItoFX(1),ItoFX(1)};
+  #else
   Vec3 normal = {1,1,1};
+  #endif
   //Generate the vertices list -- unused atm
   const unsigned int vLen = 20;//num verts
   Vertices vertices = verticesGen(vLen);
@@ -126,25 +139,25 @@ int main()
   if(triangles)
     {
       #ifdef FX
-      verts[0] = vertexGen((Vec3){ItoFX(-50), 0, 0}, normal, red, (Vec2){0, 0});
-      verts[1] = vertexGen((Vec3){ItoFX(50), 0, 0}, normal, green, (Vec2){ItoFX(100), 0});
-      verts[2] = vertexGen((Vec3){0, ItoFX(100), 0}, normal, blue, (Vec2){0, ItoFX(100)});
-      triangles[0] = triangleGen(verts, (Vec3){200, 200, 100}, &textures[0]);
+      verts[0] = vertexGen((Vec3){ItoFX(-50), ItoFX(0), ItoFX(0)}, normal, red, (Vec2){ItoFX(0), ItoFX(0)});
+      verts[1] = vertexGen((Vec3){ItoFX(50), ItoFX(0), ItoFX(0)}, normal, green, (Vec2){ItoFX(100), ItoFX(0)});
+      verts[2] = vertexGen((Vec3){ItoFX(0), ItoFX(100), ItoFX(0)}, normal, blue, (Vec2){ItoFX(0), ItoFX(100)});
+      triangles[0] = triangleGen(verts, (Vec3){ItoFX(200), ItoFX(200), ItoFX(100)}, &textures[0]);
 
-      verts[0] = vertexGen((Vec3){ItoFX(-50), 0, 0}, normal, green, (Vec2){0, 0});
-      verts[1] = vertexGen((Vec3){ItoFX(50), 0, 0}, normal, red, (Vec2){ItoFX(textures[1].width), 0});
-      verts[2] = vertexGen((Vec3){0, ItoFX(50), 0}, normal, blue, (Vec2){ItoFX(textures[1].width/2), ItoFX(textures[1].height)});
+      verts[0] = vertexGen((Vec3){ItoFX(-50), ItoFX(0), ItoFX(0)}, normal, green, (Vec2){ItoFX(0), ItoFX(0)});
+      verts[1] = vertexGen((Vec3){ItoFX(50), ItoFX(0), ItoFX(0)}, normal, red, (Vec2){ItoFX(textures[1].width), ItoFX(0)});
+      verts[2] = vertexGen((Vec3){ItoFX(0), ItoFX(50), ItoFX(0)}, normal, blue, (Vec2){ItoFX(textures[1].width/2), ItoFX(textures[1].height)});
       triangles[1] = triangleGen(verts, (Vec3){ItoFX(100), ItoFX(100), ItoFX(5)}, &textures[1]);
 
       verts[0] = vertexGen((Vec3){ItoFX(100), ItoFX(50), ItoFX(5)}, normal, blue, (Vec2){ItoFX(125), ItoFX(100)});
       verts[1] = vertexGen((Vec3){ItoFX(300), ItoFX(100), ItoFX(5)}, normal, red, (Vec2){ItoFX(225), ItoFX(100)});
       verts[2] = vertexGen((Vec3){ItoFX(200), ItoFX(125), ItoFX(25)}, normal, green, (Vec2){ItoFX(175),ItoFX(150)});
-      triangles[2] = triangleGen(verts, (Vec3){0, 0, 0}, NULL);
+      triangles[2] = triangleGen(verts, (Vec3){ItoFX(0), ItoFX(0), ItoFX(0)}, NULL);
 
-      verts[0] = vertexGen((Vec3){0, 0, 0}, normal, green, (Vec2){0, 0});
-      verts[1] = vertexGen((Vec3){ItoFX(50), 0, 0}, normal, red, (Vec2){ItoFX(textures[1].width), 0});
-      verts[2] = vertexGen((Vec3){ItoFX(50), ItoFX(50), 0}, normal, blue, (Vec2){ItoFX(textures[1].width/2), ItoFX(textures[1].height)});
-      triangles[3] = triangleGen(verts, (Vec3){0, 0, ItoFX(5)}, &textures[1]);
+      verts[0] = vertexGen((Vec3){ItoFX(0), ItoFX(0), ItoFX(0)}, normal, green, (Vec2){ItoFX(0), ItoFX(0)});
+      verts[1] = vertexGen((Vec3){ItoFX(50), ItoFX(0), ItoFX(0)}, normal, red, (Vec2){ItoFX(textures[1].width), ItoFX(0)});
+      verts[2] = vertexGen((Vec3){ItoFX(50), ItoFX(50), ItoFX(0)}, normal, blue, (Vec2){ItoFX(textures[1].width/2), ItoFX(textures[1].height)});
+      triangles[3] = triangleGen(verts, (Vec3){ItoFX(0), ItoFX(0), ItoFX(5)}, &textures[1]);
       #else
       verts[0] = vertexGen((Vec3){-50, 0, 0}, normal, red, (Vec2){0, 0});
       verts[1] = vertexGen((Vec3){50, 0, 0}, normal, green, (Vec2){100, 0});
