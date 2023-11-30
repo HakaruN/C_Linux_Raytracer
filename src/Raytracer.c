@@ -31,7 +31,7 @@ void traceRays(BvhNode* bvhNode, Camera* camera, RayHitBuffer rayHitBuffer, RayH
 			Vec3 intersectionPoint;//This is the place in space where the ray intersects with the triangle
 			
 			Triangle* hitTriangle = NULL;
-			hitTriangle = testBVH(&ray, bvhNode, intersectionPoint, &distance);
+			hitTriangle = testBVH(&ray, bvhNode, intersectionPoint);
 			
 			if(hitTriangle){ 
 				//ray hit something inside the Bvh.
@@ -75,7 +75,7 @@ inline void shading(FrameBuffer frameBuffer,  RayHitBuffer rayHitBuffer, RayHitp
 
 	    //just unpack things to be more readable and get at the vertices
 	    Vertex* vert0 = &triangle->verts[0]; Vertex* vert1 = &triangle->verts[1]; Vertex* vert2 = &triangle->verts[2];
-	    float wv[3];//barrycentric cords
+	    Vec3 wv;//barrycentric cords
 
 #ifdef RELATIVE_VERTS    
 

@@ -124,46 +124,7 @@ void bvhAddTriangle(BvhNode* node, Triangle triangle)
   }
 }
 
-inline int rayBoxIntersection(Ray* ray, BBox* box)
-{
-    Vec3 invDir = {
-      1.0f / ray->direction[0],
-		  1.0f / ray->direction[1],
-		  1.0f / ray->direction[2]
-    };
-    //    printf("Min: ");
-    //    printVec3(box->min);
-    //    printf("Max: ");
-    //    printVec3(box->max);
 
-    float txMin = (box->min[0] - ray->origin[0]) * invDir[0];
-    float txMax = (box->max[0] - ray->origin[0]) * invDir[0];
-    float tyMin = (box->min[1] - ray->origin[1]) * invDir[1];
-    float tyMax = (box->max[1] - ray->origin[1]) * invDir[1];
-    float tzMin = (box->min[2] - ray->origin[2]) * invDir[2];
-    float tzMax = (box->max[2] - ray->origin[2]) * invDir[2];
-
-    if((txMin > tyMax) || (tyMin > txMax))
-      return 0;
-
-    //txMin and txMax double up as temp vals during the algorithm
-    if(tyMin > txMin)
-      txMin = tyMin;
-
-    if(tyMax < txMax)
-      txMax = tyMax;
-
-    if((txMin > tzMax) || (tzMin > txMax))
-      return 0;
-
-    if(tzMin > txMin)
-      txMin = tzMin;
-
-    if(tzMax < txMax)
-      txMax = tzMax;
-      
-    return 1;
-}
 
 
 
@@ -173,7 +134,7 @@ inline int rayBoxIntersection(Ray* ray, BBox* box)
 /// @param intersectionPoint 
 /// @param distance 
 /// @return 
-Triangle* testBVH(Ray* ray, BvhNode* bvhNode, Vec3 intersectionPoint, float* distance)
+Triangle* testBVH(Ray* ray, BvhNode* bvhNode, Vec3 intersectionPoint)
 {
   Triangle* closestTri = NULL;
 
@@ -183,7 +144,7 @@ Triangle* testBVH(Ray* ray, BvhNode* bvhNode, Vec3 intersectionPoint, float* dis
   {
     for(int i = 0; i < numChildren; i++)
     {
-      Triangle* triangle = testBVH(ray, bvhNode->children[i], intersectionPoint, distance);
+      Triangle* triangle = testBVH(ray, bvhNode->children[i], intersectionPoint);
       if(triangle)
         closestTri = triangle;
     }
