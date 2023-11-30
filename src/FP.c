@@ -55,6 +55,8 @@ inline int sFixedToSint(SFX16_16 a)
 
 inline SFX16_16 sFXMul(SFX16_16 a, SFX16_16 b)
 {
+    if(a == 0 || b == 0)
+        return 0;
     return ((int64_t)a * (int64_t)b) >> POST_DP_BITS;
 }
 

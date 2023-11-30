@@ -3,6 +3,7 @@
         "texture.h": "c",
         "stdint.h": "c",
         "fp.h": "c",
-        "box.h": "c"
+        "box.h": "c",
+        "limits": "c"
     }
 }
