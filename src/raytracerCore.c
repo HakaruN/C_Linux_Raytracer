@@ -149,10 +149,10 @@ int main()
       verts[2] = vertexGen((Vec3){ItoFX(0), ItoFX(50), ItoFX(0)}, normal, blue, (Vec2){ItoFX(textures[1].width/2), ItoFX(textures[1].height)});
       triangles[1] = triangleGen(verts, (Vec3){ItoFX(100), ItoFX(100), ItoFX(5)}, &textures[1]);
 
-      verts[0] = vertexGen((Vec3){ItoFX(100), ItoFX(50), ItoFX(5)}, normal, blue, (Vec2){ItoFX(125), ItoFX(100)});
-      verts[1] = vertexGen((Vec3){ItoFX(300), ItoFX(100), ItoFX(5)}, normal, red, (Vec2){ItoFX(225), ItoFX(100)});
-      verts[2] = vertexGen((Vec3){ItoFX(200), ItoFX(125), ItoFX(25)}, normal, green, (Vec2){ItoFX(175),ItoFX(150)});
-      triangles[2] = triangleGen(verts, (Vec3){ItoFX(0), ItoFX(0), ItoFX(0)}, NULL);
+      verts[0] = vertexGen((Vec3){ItoFX(-100), ItoFX(50), ItoFX(25)}, normal, blue, (Vec2){ItoFX(125), ItoFX(100)});
+      verts[1] = vertexGen((Vec3){ItoFX(100), ItoFX(100), ItoFX(25)}, normal, red, (Vec2){ItoFX(225), ItoFX(100)});
+      verts[2] = vertexGen((Vec3){ItoFX(0), ItoFX(125), ItoFX(25)}, normal, green, (Vec2){ItoFX(175),ItoFX(150)});
+      triangles[2] = triangleGen(verts, (Vec3){ItoFX(200), ItoFX(200), ItoFX(50)}, NULL);
 
       verts[0] = vertexGen((Vec3){ItoFX(0), ItoFX(0), ItoFX(0)}, normal, green, (Vec2){ItoFX(0), ItoFX(0)});
       verts[1] = vertexGen((Vec3){ItoFX(50), ItoFX(0), ItoFX(0)}, normal, red, (Vec2){ItoFX(textures[1].width), ItoFX(0)});

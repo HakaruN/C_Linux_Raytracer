@@ -82,25 +82,22 @@ inline int rayBoxIntersection(Ray* ray, BBox* box)
         return 0;
 
     //txMin and txMax double up as temp vals during the algorithm
-    //  -nan      -nan
     if(tyMin > txMin && ((tyMinState != NEG_INF && tyMinState != NEG_NAN) && (txMinState != POS_INF && txMinState != POS_NAN))) {
       txMin = tyMin;
     }
-     // +inf   +inf      
     if(tyMax < txMax && ((tyMaxState != POS_INF && tyMaxState != POS_NAN) && (txMaxState != NEG_INF && txMaxState != NEG_NAN))) {
       txMax = tyMax;
     }
-      // -nan   110        10       -nan
     if(
       (txMin > tzMax) && (txMinState != NEG_INF && txMinState != NEG_NAN) && (tyMaxState != POS_INF && tyMaxState != POS_NAN) ||
       (tzMin > txMax) && (tyMinState != NEG_INF && tyMinState != NEG_NAN) && (txMaxState != POS_INF && tyMaxState != POS_NAN))
       return 0;
-       //10    -nan
-    if(tzMin > txMin)
+
+  
+    if(tzMin > txMin && ((tzMinState != NEG_INF && tzMinState != NEG_NAN) && (txMinState != POS_INF && txMinState != POS_NAN)))
       txMin = tzMin;
 
-      //110      +inf
-    if(tzMax < txMax)
+    if(tzMax < txMax && ((tzMaxState != POS_INF && tzMaxState != POS_NAN) && (txMaxState != NEG_INF && txMaxState != NEG_NAN)))
       txMax = tzMax;
       
     return 1;
