@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "texture.h": "c"
+        "texture.h": "c",
+        "vertex.h": "c",
+        "bvhnode.h": "c"
     }
 }

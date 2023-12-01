@@ -7,6 +7,8 @@
 #include "../include/Ray.h"
 #include "../include/Texture.h"
 #include "../include/Camera.h"
+#include "../include/Geometry.h"
+#include "../include/Vertex.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -19,7 +21,6 @@ int doublebuffer = 1;
 
 //Buffer sizes - how many entries we will allocate
 unsigned int numTextures = 10;
-unsigned int numTriangles = 4;
 FbDescriptor fbDescriptor = {400, 400, 3};//Descriptor for the FB, [0] = WIDTH, [1] = HEIGHT, [2] = #colours per pixel
 
 //how many are allocated
@@ -28,7 +29,6 @@ Texture* textures;//list of textures
 Triangle* triangles;//list of triangles
 RayHitBuffer rayHitBuffer;//what triangle the ray intersected
 RayHitpointBuffer rayHitpointBuffer;//where on the triangle we hit
-Vertex* verices;
 
 int main()
 {
@@ -48,6 +48,7 @@ int main()
   //Gen the window
   Window* window = createWindow(fbDescriptor[WIDTH], fbDescriptor[HEIGHT], "Raytracer", fullscreen, primMonitor, NULL);
 
+  //////SETUP RENDER BUFFERS
   //init the triangle hit buffer and distance buffer
   rayHitBuffer = malloc(sizeof(Triangle*) * fbDescriptor[WIDTH] * fbDescriptor[HEIGHT]);
   rayHitpointBuffer = malloc(sizeof(Vec3) * fbDescriptor[WIDTH] * fbDescriptor[HEIGHT]);
@@ -60,20 +61,6 @@ int main()
   //Vec3 white = {255,255,255};
   //Vec3 dark = {20,20,20};
 
-  Vec3 normal = {1,1,1};
-  //Generate the vertices list
-  const unsigned int vLen = 20;//num verts
-  Vertices vertices = verticesGen(vLen);
-  if(vertices.vertices != NULL)
-    printf("Vertices buffer generated\n");
-  else{
-    printf("Vertices buffer failed to gen\n");
-    return -1;}
-
-
-  verticesAddVert(&vertices, vertexGen((Vec3){-50, 0, 0}, normal, red, (Vec2){0, 0}));
-  verticesAddVert(&vertices, vertexGen((Vec3){50, 0, 0}, normal, green, (Vec2){100, 0}));
-  verticesAddVert(&vertices, vertexGen((Vec3){0, 100, 0}, normal, blue, (Vec2){0, 100}));
 
   //load some textures
   if(!textures)
@@ -89,35 +76,86 @@ int main()
   textures[1] = loadTexture(tex2Path, numChannels);
 
 
+
+  //////////
+  //VERTICES
+  //////////
+  Vec3 normal = {1,1,1};
+  //Generate the vertices list
+  const unsigned int vLen = 17;//num verts
+  Vertices vertices = verticesGen(vLen);
+  if(vertices.vertices != NULL)
+    printf("Vertices buffer generated\n");
+  else{
+    printf("Vertices buffer failed to gen\n");
+    return -1;}
+
+
+  //Each triangle will have 3 verts
+  //triangle 1
+  verticesAddVert(&vertices, vertexGen((Vec3){-50, 0, 0}, normal, red, (Vec2){0, 0}));
+  verticesAddVert(&vertices, vertexGen((Vec3){50, 0, 0}, normal, green, (Vec2){100, 0}));
+  verticesAddVert(&vertices, vertexGen((Vec3){0, 100, 0}, normal, blue, (Vec2){0, 100}));
+  //triangle 2
+  verticesAddVert(&vertices, vertexGen((Vec3){-50, 0, 0}, normal, green, (Vec2){0, 0}));
+  verticesAddVert(&vertices, vertexGen((Vec3){50, 0, 0}, normal, red, (Vec2){textures[1].width, 0}));
+  verticesAddVert(&vertices, vertexGen((Vec3){0, 50, 0}, normal, blue, (Vec2){textures[1].width/2, textures[1].height}));
+  //triangle 3
+  verticesAddVert(&vertices, vertexGen((Vec3){100, 50, 5}, normal, blue, (Vec2){150-25, 100}));
+  verticesAddVert(&vertices, vertexGen((Vec3){300, 100, 5}, normal, red, (Vec2){225, 100}));
+  verticesAddVert(&vertices, vertexGen((Vec3){200, 125, 25}, normal, green, (Vec2){175,150}));
+  //triangle 4
+  verticesAddVert(&vertices, vertexGen((Vec3){0, 0, 0}, normal, green, (Vec2){0, 0}));
+  verticesAddVert(&vertices, vertexGen((Vec3){50, 0, 0}, normal, red, (Vec2){textures[1].width, 0}));
+  verticesAddVert(&vertices, vertexGen((Vec3){50, 50, 0}, normal, blue, (Vec2){textures[1].width/2, textures[1].height}));
+
+
+  //////////////////
+  //GEOMETRY
+  //////////////////
+  ///Init geometry
+  initGeomCtr(0);
+  //Add geometry
+  Vec3 geomPos = {200, 200, 100};
+  unsigned int numTriangles = 20;
+  Geometry g1 = genGeometry(numTriangles, geomPos);
+
+
+  ////////////////
+  //TRIANGLES
+  ////////////////
   //init triangles
-  triangles = malloc(numTriangles * sizeof(Triangle));
+  //triangles = malloc(numTriangles * sizeof(Triangle));
 
   Vertex verts[3];
-  if(triangles)
-    {
-      verts[0] = *verticesGetVert(&vertices, 0);
-      verts[1] = *verticesGetVert(&vertices, 1);
-      verts[2] = *verticesGetVert(&vertices, 2);
-      triangles[0] = triangleGen(verts, (Vec3){200, 200, 100}, &textures[0]);
+  verts[0] = *verticesGetVert(&vertices, 0);
+  verts[1] = *verticesGetVert(&vertices, 1);
+  verts[2] = *verticesGetVert(&vertices, 2);
+  if(!geomAddTriangle(&g1, triangleGen(verts, (Vec3){200, 200, 100}, &textures[0])))
+    return 0;
 
-      verts[0] = vertexGen((Vec3){-50, 0, 0}, normal, green, (Vec2){0, 0});
-      verts[1] = vertexGen((Vec3){50, 0, 0}, normal, red, (Vec2){textures[1].width, 0});
-      verts[2] = vertexGen((Vec3){0, 50, 0}, normal, blue, (Vec2){textures[1].width/2, textures[1].height});
-      triangles[1] = triangleGen(verts, (Vec3){100, 100, 5}, &textures[1]);
+  verts[0] = *verticesGetVert(&vertices, 3);
+  verts[1] = *verticesGetVert(&vertices, 4);
+  verts[2] = *verticesGetVert(&vertices, 5);
+  if(!geomAddTriangle(&g1, triangleGen(verts, (Vec3){100, 100, 5}, &textures[1])))
+    return 0;
 
-      verts[0] = vertexGen((Vec3){100, 50, 5}, normal, blue, (Vec2){150-25, 100});
-      verts[1] = vertexGen((Vec3){300, 100, 5}, normal, red, (Vec2){225, 100});
-      verts[2] = vertexGen((Vec3){200, 125, 25}, normal, green, (Vec2){175,150});
-      triangles[2] = triangleGen(verts, (Vec3){0, 0, 0}, NULL);
+  verts[0] = *verticesGetVert(&vertices, 6);
+  verts[1] = *verticesGetVert(&vertices, 7);
+  verts[2] = *verticesGetVert(&vertices, 8);
+  if(!geomAddTriangle(&g1, triangleGen(verts, (Vec3){0, 0, 0}, NULL)))
+    return 0;
 
-      verts[0] = vertexGen((Vec3){0, 0, 0}, normal, green, (Vec2){0, 0});
-      verts[1] = vertexGen((Vec3){50, 0, 0}, normal, red, (Vec2){textures[1].width, 0});
-      verts[2] = vertexGen((Vec3){50, 50, 0}, normal, blue, (Vec2){textures[1].width/2, textures[1].height});
-      triangles[3] = triangleGen(verts, (Vec3){0, 0, 5}, &textures[1]);
-    }
-  else
-    return -1;
+  verts[0] = *verticesGetVert(&vertices, 9);
+  verts[1] = *verticesGetVert(&vertices, 10);
+  verts[2] = *verticesGetVert(&vertices, 11);
+  if(!geomAddTriangle(&g1, triangleGen(verts, (Vec3){0, 0, 5}, &textures[1])))
+    return 0;
 
+
+  //////////////////
+  //BVH
+  //////////////////
   //Setup the bvh node
   Vec3 bmin = {0,0,10};
   Vec3 bmax = {400,400,110};
@@ -128,15 +166,29 @@ int main()
   Vec3 bmax1 = {400,400,110};//{300,300,110};
   BBox* box1 = genBox(bmin1, bmax1);
   BvhNode* node1 = bvhNodeGen(8, 3, *box1);
-  bvhAddTriangle(rootNode, triangles[0]);
-  bvhAddTriangle(rootNode, triangles[1]);
-  bvhAddTriangle(node1, triangles[2]);
-  bvhAddTriangle(node1, triangles[3]);
 
+  BvhNode* pNode;
 
+  //first tri goes in the root node just to show it can do and will still work
+  pNode = bvhAddTriangle(rootNode, g1.geometryID, geomGetTriangle(&g1, 0));
+  if(!pNode)
+    return 0;
+  geomSetBackPtr(&g1, 0, pNode);
+  //next 3 triangles go in child node just to see it can, also it's happening in a loop to show it can be automated
+  for(int i = 1; i < 4; i++)
+  {
+      pNode = bvhAddTriangle(rootNode, g1.geometryID, geomGetTriangle(&g1, i));
+      if(!pNode)
+        return 0;
+      geomSetBackPtr(&g1, i, pNode);
+  }
+
+  //Set the child node as a child of the root node.
   bvhAddChild(rootNode, node1);
   if(rootNode)
     printf("BVH root inited\n");
+
+
   Camera camera = cameraGen((Vec3){0,0,0}, (Vec3){0,0,100}, (Vec3){0,1,0}, 30, fbDescriptor[WIDTH]/fbDescriptor[HEIGHT]);
 
   //setup framebuffer
