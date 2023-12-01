@@ -6,32 +6,23 @@ BvhNode* bvhNodeGen(unsigned int childrenSize, unsigned int trianglesSize, BBox 
   if(node){
     memcpy(&(node->boundingBox.min), &boundingBox.min, sizeof(float) * 3);
     memcpy(&(node->boundingBox.max), &boundingBox.max, sizeof(float) * 3);
-    node->numTriangles = 0;
+    node->numGeometries = 0;
     node->numChildren = 0;
-    node->trianglesMax = trianglesSize;
+    node->geometriesMax = trianglesSize;
     node->childrenMax = childrenSize;
 
-    //allocate the space for the triangles
-    node->triangles = malloc(trianglesSize * sizeof(Triangle));
-    if(node->triangles == NULL)//if the triangles couldn't be allocated then deallocate the node and return null
+    //allocate the space for the geoms
+    node->geometries = malloc(trianglesSize * sizeof(Triangle));
+    if(node->geometries == NULL)//if the geoms couldn't be allocated then deallocate the node and return null
     {
       free(node);
       return NULL;
     }
 
-    node->geometryIds = malloc(trianglesSize * sizeof(unsigned int));
-    if(node->geometryIds == NULL)//if the geom IDs couldn't be allocated then deallocate the node & tris and return null
-    {
-      free(node->triangles);
-      free(node);
-      return NULL;
-    }    
-
     //allocate the space for the children nodes
     node->children = malloc(childrenSize * sizeof(BvhNode));
-    if(node->children == NULL) {//if the children couldn't be allocated then deallocate the node & tris & geomIds and return null
-      free(node->geometryIds);
-      free(node->triangles);
+    if(node->children == NULL) {//if the children couldn't be allocated then deallocate the node & geoms and return null
+      free(node->geometries);
       free(node);
       return NULL;
     }
@@ -64,15 +55,15 @@ void bvhNodeFree(BvhNode* node)
     free(node->children);
     node->children = NULL;
 
-    if(node->numTriangles > 0){
-      if(node->triangles) {//cleanup the triangles
-	      for(unsigned int i = 0; i < node->numTriangles; i++)
-	        freeTriangle(node->triangles[i]);
+    if(node->numGeometries > 0){
+      if(node->geometries) {//cleanup the geoms
+	      for(unsigned int i = 0; i < node->numGeometries; i++)
+	        GeometryFree(node->geometries[i]);
       }
     }
-    //dealloc the triangles
-    free(node->triangles);
-    node->triangles = NULL;
+    //dealloc the geoms
+    free(node->geometries);
+    node->geometries = NULL;
   }
 }
 
@@ -108,37 +99,31 @@ void bvhAddChild(BvhNode* node, BvhNode* child)
   }
 }
 
-BvhNode* bvhAddTriangle(BvhNode* node, unsigned int geomId, Triangle* triangle)
+BvhNode* bvhAddGeometry(BvhNode* node, Geometry* geometry)
 {
   if(node){
     const unsigned int numToAllocate = 2;//basically just a default val
-    if(!node->triangles){//check if the triangles list is not allocated
-      node->triangles = malloc(numToAllocate * sizeof(Triangle*));
-      node->geometryIds = malloc(numToAllocate * sizeof(unsigned int));
-      memset(node->triangles, (int)NULL, numToAllocate * sizeof(Triangle*));//NULL out the triangle ptrs
-      node->trianglesMax = numToAllocate;
-      node->numTriangles = 0;
+    if(!node->geometries){//check if the geom list is not allocated
+      node->geometries = malloc(numToAllocate * sizeof(Geometry*));
+      memset(node->geometries, (int)NULL, numToAllocate * sizeof(Geometry*));//NULL out the geoms ptrs
+      node->geometriesMax = numToAllocate;
+      node->numGeometries = 0;
     }
-    if(node->numTriangles >= node->trianglesMax){
+    if(node->numGeometries >= node->geometriesMax){
       //need to allocate more space
-      Triangle** tmpTris = malloc((node->numTriangles + numToAllocate) * sizeof(Triangle*));
-      memset(tmpTris, (int)NULL, (node->numTriangles + numToAllocate) * sizeof(Triangle*));//NULL out the whole temp ptr buffer
-      unsigned int* tmpGIds = malloc((node->numTriangles + numToAllocate) * sizeof(unsigned int));
-      //copy the existing triangles into the new buffer
-      memcpy(tmpTris, node->triangles, node->numTriangles * sizeof(Triangle*));
-      memcpy(tmpGIds, node->geometryIds, node->numTriangles * sizeof(unsigned int));
+      Geometry** tmpGeoms = malloc((node->numGeometries + numToAllocate) * sizeof(Geometry*));
+      memset(tmpGeoms, (int)NULL, (node->numGeometries + numToAllocate) * sizeof(Geometry*));//NULL out the whole temp ptr buffer
+      //copy the existing geoms into the new buffer
+      memcpy(tmpGeoms, node->geometries, node->numGeometries * sizeof(Geometry*));
       //free the old buffer and exchange the ptr
-      free(node->triangles);
-      free(node->geometryIds);
-      node->triangles = tmpTris;
-      node->geometryIds = tmpGIds;
-      node->trianglesMax = node->trianglesMax + numToAllocate;//Add space for the new triangle(s)
+      free(node->geometries);
+      node->geometries = tmpGeoms;
+      node->geometriesMax = node->geometriesMax + numToAllocate;//Add space for the new geom(s)
     }
 
-    //copy the triangle into the buffer
-    node->triangles[node->numTriangles] = triangle;
-    node->geometryIds[node->numTriangles] = geomId;
-    node->numTriangles++;
+    //copy the geometry ptr into the buffer
+    node->geometries[node->numGeometries] = geometry;
+    node->numGeometries++;
     return node;
   }
   return NULL;
@@ -171,24 +156,31 @@ Triangle* testBVH(Ray* ray, BvhNode* bvhNode, Vec3 intersectionPoint)
   }
 
   //check us for intersection
-  int numTriangles = bvhNode->numTriangles;
+  int numGeometries = bvhNode->numGeometries;
 
-  if(numTriangles)
+  if(numGeometries)
   {
     //check if the ray intersects our bounding box
     if(rayBoxIntersection(ray, &bvhNode->boundingBox))
     {
-      for(int k = 0; k < numTriangles; k++)
+      for(int g = 0; g < numGeometries; g++)
       {
-        Triangle* triangle = (bvhNode->triangles[k]);
-#ifdef RELATIVE_VERTS
-        if(triangleIntersect(triangle->verts[0].transformedPosition, triangle->verts[1].transformedPosition, triangle->verts[2].transformedPosition, ray, intersectionPoint))
-#else
-        if(triangleIntersect(triangle->verts[0].position, triangle->verts[1].position, triangle->verts[2].position, ray, intersectionPoint))
-#endif
-        {
+        Geometry* geometry = bvhNode->geometries[g];
+        unsigned int numTris = geometry->numTriangles;
+          for(int t = 0; t < numTris; t++)
+          {
+            Triangle* triangle = &geometry->triangles[t];
 
-            closestTri = triangle;
+#ifdef RELATIVE_VERTS
+            if(triangleIntersect(triangle->verts[0].transformedPosition, triangle->verts[1].transformedPosition, triangle->verts[2].transformedPosition, ray, intersectionPoint))
+#else
+           if(triangleIntersect(triangle->verts[0].position, triangle->verts[1].position, triangle->verts[2].position, ray, intersectionPoint))
+#endif
+        
+            {
+
+                closestTri = triangle;
+            }
         }
       }
     }

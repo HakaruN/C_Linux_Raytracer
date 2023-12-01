@@ -3,7 +3,7 @@
 
 #include "Maths.h"
 #include <string.h>
-typedef struct{
+typedef struct Vertex{
   Vec3 position;//Position of the vertex with respect to the triangle
   Vec3 transformedPosition;//Global position of the vertex (vert pos after transform with tri pos)
   Vec3 normal;

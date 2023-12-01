@@ -9,6 +9,7 @@
 #include "../include/Camera.h"
 #include "../include/Geometry.h"
 #include "../include/Vertex.h"
+#include "../include/Mesh.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -111,45 +112,40 @@ int main()
 
 
   //////////////////
-  //GEOMETRY
+  //MESH && GEOMETRY
   //////////////////
-  ///Init geometry
-  initGeomCtr(0);
-  //Add geometry
+  Mesh mesh = meshGen(1);
   Vec3 geomPos = {200, 200, 100};
   unsigned int numTriangles = 20;
-  Geometry g1 = genGeometry(numTriangles, geomPos);
-
+  meshGenGeometry(&mesh, numTriangles, geomPos);
 
   ////////////////
   //TRIANGLES
-  ////////////////
-  //init triangles
-  //triangles = malloc(numTriangles * sizeof(Triangle));
-
+  ////////////////  
   Vertex verts[3];
+  unsigned int geomId = 0;//add the triangles to geom 0
   verts[0] = *verticesGetVert(&vertices, 0);
   verts[1] = *verticesGetVert(&vertices, 1);
   verts[2] = *verticesGetVert(&vertices, 2);
-  if(!geomAddTriangle(&g1, triangleGen(verts, (Vec3){200, 200, 100}, &textures[0])))
+  if(!meshGeomAddTri(&mesh, geomId, triangleGen(verts, (Vec3){200, 200, 100}, &textures[0])))
     return 0;
 
   verts[0] = *verticesGetVert(&vertices, 3);
   verts[1] = *verticesGetVert(&vertices, 4);
   verts[2] = *verticesGetVert(&vertices, 5);
-  if(!geomAddTriangle(&g1, triangleGen(verts, (Vec3){100, 100, 5}, &textures[1])))
+  if(!meshGeomAddTri(&mesh, geomId, triangleGen(verts, (Vec3){100, 100, 5}, &textures[1])))
     return 0;
 
   verts[0] = *verticesGetVert(&vertices, 6);
   verts[1] = *verticesGetVert(&vertices, 7);
   verts[2] = *verticesGetVert(&vertices, 8);
-  if(!geomAddTriangle(&g1, triangleGen(verts, (Vec3){0, 0, 0}, NULL)))
+  if(!meshGeomAddTri(&mesh, geomId, triangleGen(verts, (Vec3){0, 0, 0}, NULL)))
     return 0;
 
   verts[0] = *verticesGetVert(&vertices, 9);
   verts[1] = *verticesGetVert(&vertices, 10);
   verts[2] = *verticesGetVert(&vertices, 11);
-  if(!geomAddTriangle(&g1, triangleGen(verts, (Vec3){0, 0, 5}, &textures[1])))
+  if(!meshGeomAddTri(&mesh, geomId, triangleGen(verts, (Vec3){0, 0, 5}, &textures[1])))
     return 0;
 
 
@@ -162,31 +158,23 @@ int main()
   BBox* rootBox = genBox(bmin, bmax);
   BvhNode* rootNode = bvhNodeGen(8, 3, *rootBox);
 
+
+/* //Cild node
   Vec3 bmin1 = {0,0,10};//{100,100,10};
   Vec3 bmax1 = {400,400,110};//{300,300,110};
   BBox* box1 = genBox(bmin1, bmax1);
   BvhNode* node1 = bvhNodeGen(8, 3, *box1);
-
-  BvhNode* pNode;
-
-  //first tri goes in the root node just to show it can do and will still work
-  pNode = bvhAddTriangle(rootNode, g1.geometryID, geomGetTriangle(&g1, 0));
-  if(!pNode)
-    return 0;
-  geomSetBackPtr(&g1, 0, pNode);
-  //next 3 triangles go in child node just to see it can, also it's happening in a loop to show it can be automated
-  for(int i = 1; i < 4; i++)
-  {
-      pNode = bvhAddTriangle(rootNode, g1.geometryID, geomGetTriangle(&g1, i));
-      if(!pNode)
-        return 0;
-      geomSetBackPtr(&g1, i, pNode);
-  }
-
   //Set the child node as a child of the root node.
   bvhAddChild(rootNode, node1);
   if(rootNode)
     printf("BVH root inited\n");
+  */
+
+
+
+  //first tri goes in the root node just to show it can do and will still work
+  meshInsertToBvh(&mesh, rootNode);
+
 
 
   Camera camera = cameraGen((Vec3){0,0,0}, (Vec3){0,0,100}, (Vec3){0,1,0}, 30, fbDescriptor[WIDTH]/fbDescriptor[HEIGHT]);

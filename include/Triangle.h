@@ -8,7 +8,7 @@
 #include <stdlib.h>
 
 
-typedef struct{
+typedef struct Triangle{
   Vertex verts[3];
   Vec3 position;
   Texture* texture;

@@ -2,6 +2,10 @@
     "files.associations": {
         "texture.h": "c",
         "vertex.h": "c",
-        "bvhnode.h": "c"
+        "bvhnode.h": "c",
+        "box.h": "c",
+        "mesh.h": "c",
+        "framebuffer.h": "c",
+        "limits": "c"
     }
 }
