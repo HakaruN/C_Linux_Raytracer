@@ -12,10 +12,17 @@ Texture loadTexture(const char* filename, int desiredChannels)
 
   if(t.image)
     {
+      #ifdef DEBUG
       printf("Loaded %s, width: %d, height: %d, channels: %d\n",filename, width, height, channels);
+      #endif
     }
   else
-    t.image = NULL;
+    {
+      #ifdef DEBUG
+      printf("Failed to load texture: %s\n", filename);
+      #endif
+      t.image = NULL;
+    }
   return t;
 }
 
