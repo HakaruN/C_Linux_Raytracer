@@ -63,7 +63,7 @@ unsigned int geomAddTriangle(Geometry* geometry, Triangle triangle)
 }
 
 
-Triangle* geomGetTriangle(Geometry* geometry, unsigned int index)
+inline Triangle* geomGetTriangle(Geometry* geometry, unsigned int index)
 {
     if(index <= geometry->numTriangles)
         return &geometry->triangles[index];
@@ -71,7 +71,7 @@ Triangle* geomGetTriangle(Geometry* geometry, unsigned int index)
     return NULL;
 }
 
-BBox* geomGenAABB(Geometry* geometry)
+inline BBox* geomGenAABB(Geometry* geometry)
 { 
     if(geometry)
     {

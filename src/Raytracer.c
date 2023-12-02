@@ -107,24 +107,29 @@ inline void shading(FrameBuffer frameBuffer,  RayHitBuffer rayHitBuffer, RayHitp
 	      frameBuffer[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL] + 1] = greenPx;
 	      frameBuffer[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL] + 2] = bluePx;
 	    }
-	    else {//use the barycentric coords to interpolate the texture coords
-	      int u = (int)(wv[0] * vert0->texCords[0]) + (wv[1] * vert1->texCords[0]) + (wv[2] * vert2->texCords[0]);
-	      int v = (int)(wv[0] * vert0->texCords[1]) + (wv[1] * vert1->texCords[1]) + (wv[2] * vert2->texCords[1]);
-	      //sample the texture at the point of intersection
-	      unsigned char* image = triangle->texture->image;
-	      //copy the sample to the framebuffer
-	      //see if the text coord is wrapping past the end of the texture and if so we will modulo with the size
-	      unsigned int texSize = triangle->texture->sizeBytes;
-	      unsigned char texChannels = triangle->texture->channels;
-	      unsigned int texSampleAddr = ((v * triangle->texture->width) + u) * texChannels;
+	    else
+		{
+			///use the barycentric coords to interpolate the texture coords
+			//get denormalised tex coords
+			int texWidth = triangle->texture->width;
+			int texHeight = triangle->texture->height;
+			int u = (int)((wv[0] * vert0->texCords[0] * texWidth) + (wv[1] * vert1->texCords[0] * texWidth) + (wv[2] * vert2->texCords[0] * texWidth));
+			int v = (int)((wv[0] * vert0->texCords[1] * texHeight) + (wv[1] * vert1->texCords[1] * texHeight) + (wv[2] * vert2->texCords[1] * texHeight));
+			//sample the texture at the point of intersection
+			unsigned char* image = triangle->texture->image;
+			//copy the sample to the framebuffer
+			//see if the text coord is wrapping past the end of the texture and if so we will modulo with the size
+			unsigned int texSize = triangle->texture->sizeBytes;
+			unsigned char texChannels = triangle->texture->channels;
+			unsigned int texSampleAddr = ((v * triangle->texture->width) + u) * texChannels;
 
-	      if(texSampleAddr > texSize)
-		texSampleAddr = texSampleAddr % texSize;//if were running past the end of the tex, do texture wrapping
+			if(texSampleAddr > texSize)
+				texSampleAddr = texSampleAddr % texSize;//if were running past the end of the tex, do texture wrapping
 
-	      memcpy(
-		     &frameBuffer[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL]],
-		     &image[texSampleAddr],//The 3's here are the colours per pixel
-		     texChannels * sizeof(unsigned char));
+			memcpy(
+			&frameBuffer[((j * fbDescriptor[WIDTH]) + i) * fbDescriptor[COLOURS_PER_PIXEL]],
+			&image[texSampleAddr],//The 3's here are the colours per pixel
+			texChannels * sizeof(unsigned char));
 	    }
 	  }
 	}

@@ -11,7 +11,7 @@ Mesh meshGen(unsigned int numGeometries)
    return m;
 }
 
-unsigned int meshGenGeometry(Mesh* mesh, unsigned int numTriangles, Vec3 pos)
+inline unsigned int meshGenGeometry(Mesh* mesh, unsigned int numTriangles, Vec3 pos)
 {
     if(mesh)
     {
@@ -53,7 +53,7 @@ unsigned int meshGenGeometry(Mesh* mesh, unsigned int numTriangles, Vec3 pos)
     return 0;
 }
 
-unsigned int meshGeomAddTri(Mesh* mesh, unsigned int geomIdx, Triangle triangle)
+inline unsigned int meshGeomAddTri(Mesh* mesh, unsigned int geomIdx, Triangle triangle)
 {
     if(mesh)
     {
@@ -64,7 +64,7 @@ unsigned int meshGeomAddTri(Mesh* mesh, unsigned int geomIdx, Triangle triangle)
     return 0;
 }
 
-void meshInsertToBvh(Mesh* mesh, BvhNode* bvh)
+inline void meshInsertToBvh(Mesh* mesh, BvhNode* bvh)
 {
     if(mesh && bvh)
     {
@@ -73,7 +73,7 @@ void meshInsertToBvh(Mesh* mesh, BvhNode* bvh)
     }
 }
 
-Geometry* meshGetGeometry(Mesh* mesh, unsigned int meshIdx)
+inline Geometry* meshGetGeometry(Mesh* mesh, unsigned int meshIdx)
 {
     if(mesh)
     {
@@ -83,7 +83,7 @@ Geometry* meshGetGeometry(Mesh* mesh, unsigned int meshIdx)
     return NULL;
 }
 
-BvhNode* mGetBvhPtr(Mesh* mesh, unsigned int meshIdx)
+inline BvhNode* mGetBvhPtr(Mesh* mesh, unsigned int meshIdx)
 {
     if(mesh)
     {

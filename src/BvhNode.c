@@ -152,7 +152,7 @@ BvhNode* bvhAddGeometry(BvhNode* node, Geometry* geometry)
 /// @param intersectionPoint 
 /// @param distance 
 /// @return 
-Triangle* testBVH(Ray* ray, BvhNode* bvhNode, Vec3 intersectionPoint)
+inline Triangle* testBVH(Ray* ray, BvhNode* bvhNode, Vec3 intersectionPoint)
 {
   Triangle* closestTri = NULL;
 

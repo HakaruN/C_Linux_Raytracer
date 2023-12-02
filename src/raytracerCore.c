@@ -31,6 +31,8 @@ Triangle* triangles;//list of triangles
 RayHitBuffer rayHitBuffer;//what triangle the ray intersected
 RayHitpointBuffer rayHitpointBuffer;//where on the triangle we hit
 
+
+
 int main()
 {
   //Init glfw and setup monitor/window
@@ -55,13 +57,14 @@ int main()
   rayHitpointBuffer = malloc(sizeof(Vec3) * fbDescriptor[WIDTH] * fbDescriptor[HEIGHT]);
   textures = malloc(sizeof(Texture) * numTextures);
 
-  Vec3 red = {255,128,128};
-  Vec3 green = {128,255,128};
-  Vec3 blue = {128,128,255};
-  //Vec3 grey = {100,100,100};
-  //Vec3 white = {255,255,255};
-  //Vec3 dark = {20,20,20};
 
+//colours
+Vec3 red = {255,128,128};
+Vec3 green = {128,255,128};
+Vec3 blue = {128,128,255};
+Vec3 grey = {100,100,100};
+Vec3 white = {255,255,255};
+Vec3 dark = {20,20,20};
 
   //load some textures
   if(!textures)
@@ -92,22 +95,24 @@ int main()
 
 
   //Each triangle will have 3 verts
-  //triangle 1
+  //triangle 1  
   verticesAddVert(&vertices, vertexGen((Vec3){-50, 0, 0}, normal, red, (Vec2){0, 0}));
-  verticesAddVert(&vertices, vertexGen((Vec3){50, 0, 0}, normal, green, (Vec2){100, 0}));
-  verticesAddVert(&vertices, vertexGen((Vec3){0, 100, 0}, normal, blue, (Vec2){0, 100}));
+  verticesAddVert(&vertices, vertexGen((Vec3){50, 0, 0}, normal, green, (Vec2){1, 0}));
+  verticesAddVert(&vertices, vertexGen((Vec3){0, 100, 0}, normal, blue, (Vec2){0.5, 1}));
+  
   //triangle 2
-  verticesAddVert(&vertices, vertexGen((Vec3){-50, 0, 0}, normal, green, (Vec2){0, 0}));
-  verticesAddVert(&vertices, vertexGen((Vec3){50, 0, 0}, normal, red, (Vec2){textures[1].width, 0}));
-  verticesAddVert(&vertices, vertexGen((Vec3){0, 50, 0}, normal, blue, (Vec2){textures[1].width/2, textures[1].height}));
+  verticesAddVert(&vertices, vertexGen((Vec3){-50, 0, 0}, normal, grey, (Vec2){0, 0}));
+  verticesAddVert(&vertices, vertexGen((Vec3){50, 0, 0}, normal, white, (Vec2){1, 0}));
+  verticesAddVert(&vertices, vertexGen((Vec3){0, 50, 0}, normal, dark, (Vec2){0.5, 1}));
+  
   //triangle 3
-  verticesAddVert(&vertices, vertexGen((Vec3){100, 50, 5}, normal, blue, (Vec2){150-25, 100}));
-  verticesAddVert(&vertices, vertexGen((Vec3){300, 100, 5}, normal, red, (Vec2){225, 100}));
-  verticesAddVert(&vertices, vertexGen((Vec3){200, 125, 25}, normal, green, (Vec2){175,150}));
+  verticesAddVert(&vertices, vertexGen((Vec3){100, 50, 5}, normal, red, (Vec2){0.25, 0.1}));
+  verticesAddVert(&vertices, vertexGen((Vec3){300, 100, 5}, normal, green, (Vec2){0.75, 0.1}));
+  verticesAddVert(&vertices, vertexGen((Vec3){200, 125, 25}, normal, blue, (Vec2){0.5,0.75}));
   //triangle 4
   verticesAddVert(&vertices, vertexGen((Vec3){0, 0, 0}, normal, green, (Vec2){0, 0}));
-  verticesAddVert(&vertices, vertexGen((Vec3){50, 0, 0}, normal, red, (Vec2){textures[1].width, 0}));
-  verticesAddVert(&vertices, vertexGen((Vec3){50, 50, 0}, normal, blue, (Vec2){textures[1].width/2, textures[1].height}));
+  verticesAddVert(&vertices, vertexGen((Vec3){50, 0, 0}, normal, red, (Vec2){1, 0}));
+  verticesAddVert(&vertices, vertexGen((Vec3){50, 50, 0}, normal, blue, (Vec2){1, 1}));
 
 
   //////////////////
@@ -116,8 +121,8 @@ int main()
   Mesh mesh = meshGen(1);
   Vec3 geomPos = {200, 200, 100};
   unsigned int numTriangles = 2;
-  meshGenGeometry(&mesh, numTriangles, geomPos);
-  meshGenGeometry(&mesh, numTriangles, geomPos);
+  meshGenGeometry(&mesh, numTriangles, geomPos);//Adding geom 1 to the mesh
+  meshGenGeometry(&mesh, numTriangles, geomPos);//Adding geom 2 to the mesh
 
   ////////////////
   //TRIANGLES
@@ -158,20 +163,6 @@ int main()
   Vec3 bmax = {400,400,110};
   BBox* rootBox = genBox(bmin, bmax);
   BvhNode* rootNode = bvhNodeGen(8, 1, rootBox);
-
-
-/* //Cild node
-  Vec3 bmin1 = {0,0,10};//{100,100,10};
-  Vec3 bmax1 = {400,400,110};//{300,300,110};
-  BBox* box1 = genBox(bmin1, bmax1);
-  BvhNode* node1 = bvhNodeGen(8, 3, *box1);
-  //Set the child node as a child of the root node.
-  bvhAddChild(rootNode, node1);
-  if(rootNode)
-    printf("BVH root inited\n");
-  */
-
-
 
   //first tri goes in the root node just to show it can do and will still work
   meshInsertToBvh(&mesh, rootNode);
