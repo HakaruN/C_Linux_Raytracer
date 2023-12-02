@@ -75,8 +75,7 @@ int main()
   const char* tex2Path = "/home/hakaru/Projects/LinuxRT/C_Linux_Raytracer/res/tex1.jpg";
   textures[0] = loadTexture(tex1Path, numChannels);
   textures[1] = loadTexture(tex2Path, numChannels);
-
-
+     
 
   //////////
   //VERTICES
@@ -128,13 +127,13 @@ int main()
   verts[0] = *verticesGetVert(&vertices, 0);
   verts[1] = *verticesGetVert(&vertices, 1);
   verts[2] = *verticesGetVert(&vertices, 2);
-  if(!meshGeomAddTri(&mesh, geomId, triangleGen(verts, (Vec3){200, 200, 100}, &textures[0])))
+  if(!meshGeomAddTri(&mesh, geomId, triangleGen(verts, (Vec3){200, 200, 100}, textures[0].image == NULL ? NULL: &textures[0])))
     return 0;
 
   verts[0] = *verticesGetVert(&vertices, 3);
   verts[1] = *verticesGetVert(&vertices, 4);
   verts[2] = *verticesGetVert(&vertices, 5);
-  if(!meshGeomAddTri(&mesh, geomId, triangleGen(verts, (Vec3){100, 100, 5}, &textures[1])))
+  if(!meshGeomAddTri(&mesh, geomId, triangleGen(verts, (Vec3){100, 100, 5}, textures[1].image == NULL ? NULL: &textures[1])))
     return 0;
 
   geomId = 1;//add the triangles to geom 1
@@ -147,7 +146,7 @@ int main()
   verts[0] = *verticesGetVert(&vertices, 9);
   verts[1] = *verticesGetVert(&vertices, 10);
   verts[2] = *verticesGetVert(&vertices, 11);
-  if(!meshGeomAddTri(&mesh, geomId, triangleGen(verts, (Vec3){0, 0, 5}, &textures[1])))
+  if(!meshGeomAddTri(&mesh, geomId, triangleGen(verts, (Vec3){0, 0, 5}, textures[1].image == NULL ? NULL: &textures[1])))
     return 0;
 
 
