@@ -1,9 +1,0 @@
-#!/bin/bash
-cd src
-##PowerPc
-#gcc -oraytracer -DVECTOR -DALTIVEC -O3 raytracerCore.c Window.c FrameBuffer.c Vertex.c Triangle.c BvhNode.c Maths.c Ray.c Box.c Texture.o Camera.c -maltivec -mabi=altivec -lGL -lGLU -lglfw3 -lX11 -ldl -lGLEW -lm -lXxf86vm -lXrandr -lpthread -lXi -lXinerama -lXcursor
-
-##Not PowerPc
-gcc -oraytracer -O0 -g -Wall -Wno-unused-function Camera.c raytracerCore.c Window.c FrameBuffer.c Vertex.c Triangle.c BvhNode.c Maths.c Ray.c Box.c Raytracer.c Texture.c -lGL -lGLU -lglfw3 -lX11 -ldl -lGLEW -lm -lXxf86vm -lXrandr -lpthread -lXi -lXinerama -lXcursor 
-mv raytracer ../
-cd ..

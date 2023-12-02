@@ -1,5 +1,0 @@
-#!/bin/bash
-cd src
-gcc -O3 -c Texture.c
-#gcc -O0 -g -c Texture.c
-cd ..
