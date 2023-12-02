@@ -1,11 +1,12 @@
 # C_Linux_Raytracer
 
 Current TODO:
-    Implement better texture sampling so the we use normalised texture coords instead of absolute.
-    Implement secondary rays
-    Implement proper transforms for all of the objects
-    Add an importer for proper 3d file formats (eg .obj)
-    Implement a multithreaded implementation
+    - Implement better texture sampling so the we use normalised texture coords instead of absolute.
+    - Implement secondary rays
+    - Implement a perspective camera
+    - Implement proper transforms for all of the objects
+    - Add an importer for proper 3d file formats (eg .obj)
+    - Implement a multithreaded implementation
 
 Clone:
 The repo must be cloned with --recursive as it uses stbimage as a submodule
