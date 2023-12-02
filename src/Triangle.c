@@ -7,7 +7,8 @@ Triangle triangleGen(Vertex* verts, Vec3 pos, Texture* texture)
   {
     if(texture->image)
       t.texture = texture;
-    t.texture = NULL;
+    else
+      t.texture = NULL;
   }
   else
     t.texture = NULL;
