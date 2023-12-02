@@ -116,7 +116,8 @@ int main()
   //////////////////
   Mesh mesh = meshGen(1);
   Vec3 geomPos = {200, 200, 100};
-  unsigned int numTriangles = 20;
+  unsigned int numTriangles = 2;
+  meshGenGeometry(&mesh, numTriangles, geomPos);
   meshGenGeometry(&mesh, numTriangles, geomPos);
 
   ////////////////
@@ -136,6 +137,7 @@ int main()
   if(!meshGeomAddTri(&mesh, geomId, triangleGen(verts, (Vec3){100, 100, 5}, &textures[1])))
     return 0;
 
+  geomId = 1;//add the triangles to geom 1
   verts[0] = *verticesGetVert(&vertices, 6);
   verts[1] = *verticesGetVert(&vertices, 7);
   verts[2] = *verticesGetVert(&vertices, 8);
@@ -156,7 +158,7 @@ int main()
   Vec3 bmin = {0,0,10};
   Vec3 bmax = {400,400,110};
   BBox* rootBox = genBox(bmin, bmax);
-  BvhNode* rootNode = bvhNodeGen(8, 3, *rootBox);
+  BvhNode* rootNode = bvhNodeGen(8, 1, rootBox);
 
 
 /* //Cild node

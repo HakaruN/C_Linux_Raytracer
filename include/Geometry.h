@@ -2,6 +2,7 @@
 #define __GEOMETRY_H__
 
 #include "../include/Triangle.h"
+#include "../include/Box.h"
 
 
 typedef struct Geometry{
@@ -15,6 +16,8 @@ Geometry genGeometry(unsigned int numTriangles, Vec3 position);
 unsigned int geomAddTriangle(Geometry* geometry, Triangle triangle);
 
 Triangle* geomGetTriangle(Geometry* geometry, unsigned int index);
+
+BBox* geomGenAABB(Geometry* geometry);
 
 void GeometryFree(Geometry* geom);
 

@@ -68,7 +68,6 @@ void meshInsertToBvh(Mesh* mesh, BvhNode* bvh)
 {
     if(mesh && bvh)
     {
-        //pNode = bvhAddGeometry(rootNode, &g1);
         for(unsigned int idx = 0; idx < mesh->numGeometries; idx++)
             mesh->nodeToGeomBkPtr[idx] = bvhAddGeometry(bvh, &mesh->geometries[idx]);
     }

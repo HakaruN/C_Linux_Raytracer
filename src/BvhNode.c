@@ -1,18 +1,18 @@
 #include "../include/BvhNode.h"
 
-BvhNode* bvhNodeGen(unsigned int childrenSize, unsigned int trianglesSize, BBox boundingBox)
+BvhNode* bvhNodeGen(unsigned int childrenSize, unsigned int geometriesSize, BBox* boundingBox)
 {
   BvhNode* node = (BvhNode*)malloc(sizeof(BvhNode));
   if(node){
-    memcpy(&(node->boundingBox.min), &boundingBox.min, sizeof(float) * 3);
-    memcpy(&(node->boundingBox.max), &boundingBox.max, sizeof(float) * 3);
+    memcpy(&node->boundingBox.min, boundingBox->min, sizeof(float) * 3);
+    memcpy(&node->boundingBox.max, boundingBox->max, sizeof(float) * 3);
     node->numGeometries = 0;
     node->numChildren = 0;
-    node->geometriesMax = trianglesSize;
+    node->geometriesMax = geometriesSize;
     node->childrenMax = childrenSize;
 
     //allocate the space for the geoms
-    node->geometries = malloc(trianglesSize * sizeof(Triangle));
+    node->geometries = malloc(geometriesSize * sizeof(Triangle));
     if(node->geometries == NULL)//if the geoms couldn't be allocated then deallocate the node and return null
     {
       free(node);
@@ -102,29 +102,42 @@ void bvhAddChild(BvhNode* node, BvhNode* child)
 BvhNode* bvhAddGeometry(BvhNode* node, Geometry* geometry)
 {
   if(node){
-    const unsigned int numToAllocate = 2;//basically just a default val
-    if(!node->geometries){//check if the geom list is not allocated
-      node->geometries = malloc(numToAllocate * sizeof(Geometry*));
-      memset(node->geometries, (int)NULL, numToAllocate * sizeof(Geometry*));//NULL out the geoms ptrs
-      node->geometriesMax = numToAllocate;
-      node->numGeometries = 0;
+    if(node->numGeometries >= node->geometriesMax)
+    {//if the Bvh is full, make a child that fits perfectly around the geometry and add it as a child to the parent. Then add the geom to that.
+      if(node->numChildren == 0){
+        BBox* b = geomGenAABB(geometry);
+        BvhNode* childNode = bvhNodeGen(1, 1, b);
+        bvhAddChild(node, childNode);
+      }
+      
+      return bvhAddGeometry(node->children[0], geometry);
     }
-    if(node->numGeometries >= node->geometriesMax){
-      //need to allocate more space
-      Geometry** tmpGeoms = malloc((node->numGeometries + numToAllocate) * sizeof(Geometry*));
-      memset(tmpGeoms, (int)NULL, (node->numGeometries + numToAllocate) * sizeof(Geometry*));//NULL out the whole temp ptr buffer
-      //copy the existing geoms into the new buffer
-      memcpy(tmpGeoms, node->geometries, node->numGeometries * sizeof(Geometry*));
-      //free the old buffer and exchange the ptr
-      free(node->geometries);
-      node->geometries = tmpGeoms;
-      node->geometriesMax = node->geometriesMax + numToAllocate;//Add space for the new geom(s)
-    }
+    else
+    {
+      const unsigned int numToAllocate = 1;//basically just a default val
+      if(!node->geometries){//check if the geom list is not allocated
+        node->geometries = malloc(numToAllocate * sizeof(Geometry*));
+        memset(node->geometries, (int)NULL, numToAllocate * sizeof(Geometry*));//NULL out the geoms ptrs
+        node->geometriesMax = numToAllocate;
+        node->numGeometries = 0;
+      }
+      if(node->numGeometries >= node->geometriesMax){
+        //need to allocate more space
+        Geometry** tmpGeoms = malloc((node->numGeometries + numToAllocate) * sizeof(Geometry*));
+        memset(tmpGeoms, (int)NULL, (node->numGeometries + numToAllocate) * sizeof(Geometry*));//NULL out the whole temp ptr buffer
+        //copy the existing geoms into the new buffer
+        memcpy(tmpGeoms, node->geometries, node->numGeometries * sizeof(Geometry*));
+        //free the old buffer and exchange the ptr
+        free(node->geometries);
+        node->geometries = tmpGeoms;
+        node->geometriesMax = node->geometriesMax + numToAllocate;//Add space for the new geom(s)
+      }
 
-    //copy the geometry ptr into the buffer
-    node->geometries[node->numGeometries] = geometry;
-    node->numGeometries++;
-    return node;
+      //copy the geometry ptr into the buffer
+      node->geometries[node->numGeometries] = geometry;
+      node->numGeometries++;
+      return node;
+    }
   }
   return NULL;
 }

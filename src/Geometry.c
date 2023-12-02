@@ -71,6 +71,40 @@ Triangle* geomGetTriangle(Geometry* geometry, unsigned int index)
     return NULL;
 }
 
+BBox* geomGenAABB(Geometry* geometry)
+{ 
+    if(geometry)
+    {
+        BBox* b = malloc(sizeof(BBox));
+        b->min[0] = 0; b->min[1] = 0; b->min[2] = 0;
+        b->max[0] = 0; b->max[1] = 0; b->max[2] = 0;
+        for(unsigned int t = 0; t < geometry->numTriangles; t++)//iterate through each tri
+        {
+            for(unsigned int v = 0; v < 3; v++)
+            {
+                //find the max x
+                b->max[0] = geometry->triangles[t].verts[v].transformedPosition[0] > b->max[0] ? geometry->triangles[t].verts[v].transformedPosition[0] : b->max[0];
+                b->min[0] = geometry->triangles[t].verts[v].transformedPosition[0] < b->min[0] ? geometry->triangles[t].verts[v].transformedPosition[0] : b->min[0];
+                //find the max y
+                b->max[1] = geometry->triangles[t].verts[v].transformedPosition[1] > b->max[1] ? geometry->triangles[t].verts[v].transformedPosition[1] : b->max[1];
+                b->min[1] = geometry->triangles[t].verts[v].transformedPosition[1] < b->min[1] ? geometry->triangles[t].verts[v].transformedPosition[1] : b->min[1];
+                //find the max z
+                b->max[2] = geometry->triangles[t].verts[v].transformedPosition[2] > b->max[2] ? geometry->triangles[t].verts[v].transformedPosition[2] : b->max[2];
+                b->min[2] = geometry->triangles[t].verts[v].transformedPosition[2] < b->min[2] ? geometry->triangles[t].verts[v].transformedPosition[2] : b->min[2];
+            }
+        }
+        #ifdef DEBUG
+        printf("AABB min: ");
+        printVec3(b->min);
+        printf("AABB max: ");
+        printVec3(b->max);
+        #endif
+        return b;
+    }
+    return NULL;
+
+}
+
 void GeometryFree(Geometry* geom)
 {
     if(geom)

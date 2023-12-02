@@ -7,6 +7,8 @@
 #include "Geometry.h"
 
 
+static const unsigned int bvhNumChildrenMax = 2;
+
 typedef struct BvhNode{
   BBox boundingBox;//The bounding volume of this node
   struct BvhNode** children;//Array of BVH node pointers  
@@ -15,7 +17,7 @@ typedef struct BvhNode{
   unsigned int childrenMax, geometriesMax;//max number (allocated space)
 } BvhNode;
 
-BvhNode* bvhNodeGen(unsigned int childrenSize, unsigned int trianglesSize, BBox boundingBox);
+BvhNode* bvhNodeGen(unsigned int childrenSize, unsigned int geometriesSize, BBox* boundingBox);
 void bvhNodeFree(BvhNode* node);
 void bvhAddChild(BvhNode* node, BvhNode* child);
 BvhNode* bvhAddGeometry(BvhNode* node, Geometry* triangle);
