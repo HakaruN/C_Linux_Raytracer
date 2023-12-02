@@ -4,7 +4,11 @@ Triangle triangleGen(Vertex* verts, Vec3 pos, Texture* texture)
 {
   Triangle t;
   if(texture)
-    t.texture = texture;
+  {
+    if(texture->image)
+      t.texture = texture;
+    t.texture = NULL;
+  }
   else
     t.texture = NULL;
   if(verts){
