@@ -1,0 +1,23 @@
+# Blender 3.4.1 MTL File: 'crate.blend1'
+# www.blender.org
+
+newmtl DiffuseAndSpecular
+Ns 360.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd /home/hakaru/Projects/graphics/blender/texture/wood/wood2/wood-background-1.jpg
+map_Bump -bm 1.000000 /home/hakaru/Projects/graphics/blender/texture/wood/wood2/woodBackgroundNormal.png
+
+newmtl DiffuseOnly
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd /home/hakaru/Projects/graphics/blender/texture/stone/stone1.jpeg

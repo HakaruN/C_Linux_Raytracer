@@ -9,11 +9,11 @@ typedef struct Mesh
     BvhNode** nodeToGeomBkPtr;
     Geometry* geometries;
     unsigned int numGeometries, maxGeometries;
+    Mat4 transform;
 } Mesh;
 
 Mesh meshGen(unsigned int numGeometries);
 unsigned int meshGenGeometry(Mesh* mesh, unsigned int numTriangles, Vec3 pos);
-
 
 unsigned int meshGeomAddTri(Mesh* mesh, unsigned int geomIdx, Triangle triangle);
 

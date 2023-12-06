@@ -1,6 +1,5 @@
 #include "../include/Raytracer.h"
-//TODO: Replace the Triangle list with a BvhNode
-void traceRays(BvhNode* bvhNode, Camera* camera, RayHitBuffer rayHitBuffer, RayHitpointBuffer rayHitpointBuffer, FbDescriptor fbDescriptor, float invHeightMinus1, float invWidthMinus1){
+void traceRays(BvhNode* bvhNode, Camera* camera, RayHitBuffer rayHitBuffer, RayHitpointBuffer rayHitpointBuffer, RayHitNormalBuffer rayHitnormalBuffer, RayHitDirectionBuffer rayHitDirectionBuffer, FbDescriptor fbDescriptor, float invHeightMinus1, float invWidthMinus1){
 	long pxCount = 0;
 	
   	for(int j = 0; j < fbDescriptor[HEIGHT]; j++)
@@ -35,16 +34,52 @@ void traceRays(BvhNode* bvhNode, Camera* camera, RayHitBuffer rayHitBuffer, RayH
 			
 			if(hitTriangle){ 
 				//ray hit something inside the Bvh.
+
 				rayHitBuffer[((j * fbDescriptor[WIDTH]) + i)] = hitTriangle;
 				memcpy(rayHitpointBuffer[((j * fbDescriptor[WIDTH]) + i)], intersectionPoint, sizeof(Vec3));
+				memcpy(rayHitnormalBuffer[((j * fbDescriptor[WIDTH]) + i)], hitTriangle->verts->normal, sizeof(Vec3));
+				memcpy(rayHitDirectionBuffer[((j * fbDescriptor[WIDTH]) + i)], ray.direction, sizeof(Vec3));
 			}
 			pxCount++;
 		}
 	}
 }
 
+inline void traceSecondaryRays(BvhNode* rootNode, RayHitBuffer rayHitBuffer, RayHitpointBuffer rayHitpointBuffer, RayHitNormalBuffer rayHitnormalBuffer, RayHitDirectionBuffer rayHitDirectionBuffer, FbDescriptor fbDescriptor)
+{
+	for(int i = 0; i < fbDescriptor[WIDTH] * fbDescriptor[HEIGHT]; i++)
+	{
+		//if we didn't hit anything then just return
+		if(rayHitBuffer[i] == NULL)
+	    	continue;
+			
 
-inline void shading(FrameBuffer frameBuffer,  RayHitBuffer rayHitBuffer, RayHitpointBuffer rayHitpointBuffer, FbDescriptor fbDescriptor)
+		//Now we know we hit something, copy the details out of the buffer
+		Vec3 point;
+		Vec3 normal;
+		Vec3 direction;
+		float distance = 50000;
+
+		memcpy(point,  rayHitpointBuffer[i], sizeof(Vec3));
+		memcpy(normal,  rayHitnormalBuffer[i], sizeof(Vec3));
+		memcpy(direction,  rayHitDirectionBuffer[i], sizeof(Vec3));
+
+		//TODO:
+		//Adjust the ray direction to be about the normal
+		//Move the ray just above the surfice
+
+		//trace the rays
+		Ray ray = rayInit(point, direction, distance);
+		//Test the ray against the BvhNode
+		Vec3 intersectionPoint;//This is the place in space where the ray intersects with the triangle
+			
+		Triangle* hitTriangle = NULL;
+		hitTriangle = testBVH(&ray, rootNode, intersectionPoint);
+	}
+}
+
+
+inline void shading(FrameBuffer frameBuffer,  RayHitBuffer rayHitBuffer, RayHitpointBuffer rayHitpointBuffer, RayHitNormalBuffer rayHitnormalBuffer, RayHitDirectionBuffer rayHitDirectionBuffer, FbDescriptor fbDescriptor)
 {
 
   //now we know what we hit, colour it to the fb
@@ -70,8 +105,15 @@ inline void shading(FrameBuffer frameBuffer,  RayHitBuffer rayHitBuffer, RayHitp
 
 
 	    Vec3 hitpoint;
+		Vec3 hitNormal;
+		Vec3 hitDirection;
+
+
+
 
 	    memcpy(hitpoint,  rayHitpointBuffer[((j * fbDescriptor[WIDTH]) + i)], 3 * sizeof(float));
+		memcpy(hitNormal,  rayHitnormalBuffer[((j * fbDescriptor[WIDTH]) + i)], 3 * sizeof(float));
+		memcpy(hitDirection,  rayHitDirectionBuffer[((j * fbDescriptor[WIDTH]) + i)], 3 * sizeof(float));
 
 	    //just unpack things to be more readable and get at the vertices
 	    Vertex* vert0 = &triangle->verts[0]; Vertex* vert1 = &triangle->verts[1]; Vertex* vert2 = &triangle->verts[2];

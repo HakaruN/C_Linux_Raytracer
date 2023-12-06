@@ -13,10 +13,19 @@ typedef struct Vertex{
 
 
 typedef struct{
-  unsigned int size;//how many verts we can fit in the array
+  unsigned int size;//how many verts we can fit in the array 
   unsigned int numVerts;//num verts currently in the struct
   Vertex* vertices;//actuall array of the verts
 } Vertices;
+
+typedef struct V{
+  Vec3* positions;
+  Vec3* normals;
+  Vec2* texCoords;
+  unsigned int posIndex;
+  unsigned int normalIndex;
+  unsigned int texCordIndex;
+} V;
 
 Vertex vertexGen(Vec3 position, Vec3 normal, Vec3 colour, Vec2 texCords);
 Vertices verticesGen(unsigned int size);//gen an a vertex buffer object. Entries here are to be accessed via indices

@@ -18,6 +18,8 @@ typedef unsigned char* FrameBuffer;
 typedef Triangle** RayHitBuffer;//one entry per pixel (or ray), each pixel now knows what triangle it hit
 //typedef unsigned short* RayHitBuffer;//one entry per pixel (or ray), each pixel now knows what it's ray hit.
 typedef Vec3* RayHitpointBuffer;//one entry per pixel (pr ray), where in 3D space the ray hit.
+typedef Vec3* RayHitNormalBuffer;//stores the normal of the triangle intersected
+typedef Vec3* RayHitDirectionBuffer;//stores the direction of the ray intersecting the triangle
 
 FrameBuffer createFB(FbDescriptor fbDescriptor);
 void freeFB(FrameBuffer fb);
