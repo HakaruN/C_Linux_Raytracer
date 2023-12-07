@@ -26,6 +26,7 @@ typedef struct G{
 Geometry genGeometry(unsigned int numTriangles, Vec3 position);
 unsigned int geomAddTriangle(Geometry* geometry, Triangle triangle);
 
+
 Triangle* geomGetTriangle(Geometry* geometry, unsigned int index);
 
 BBox* geomGenAABB(Geometry* geometry);

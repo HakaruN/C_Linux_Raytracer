@@ -36,16 +36,16 @@ RayHitNormalBuffer rayHitnormalBuffer;//The normal of the geom that was hit
 RayHitDirectionBuffer rayHitDirectionBuffer;//The direction of the ray
 
 
-          #define X 0
-          #define Y 1
-          #define Z 2
-          #define VERT1 0
-          #define VERT2 1
-          #define VERT3 2
-          #define VERT4 3
-          #define FLOATS_PER_POS 3
-          #define FLOATS_PER_NORM 3
-          #define FLOATS_PER_TEX 2
+#define X 0
+#define Y 1
+#define Z 2
+#define VERT1 0
+#define VERT2 1
+#define VERT3 2
+#define VERT4 3
+#define FLOATS_PER_POS 3
+#define FLOATS_PER_NORM 3
+#define FLOATS_PER_TEX 2
 
 
 
@@ -100,6 +100,25 @@ Vec3 dark = {20,20,20};
 
   //load cube
   fastObjMesh* cube = fast_obj_read("/home/hakaru/Projects/C_Linux_Raytracer/res/models/cube.obj");
+  ///Create a geometry from the obj file
+  G g;
+
+  //copy the vertex positions
+  unsigned int posCount = cube->position_count - 1;
+  g.positions = malloc(posCount * sizeof(Vec3));
+  memcpy(g.positions, (cube->positions) + 3, posCount * sizeof(Vec3));
+
+  //copy the vertex normals
+  unsigned int normCount = cube->normal_count - 1;
+  g.normals = malloc(normCount * sizeof(Vec3));
+  memcpy(g.normals, (cube->normals + 3), normCount * sizeof(Vec3));
+
+  //copy the tex cords
+  unsigned int texCordCount = cube->texcoord_count - 1;
+  g.texCords = malloc(texCordCount * sizeof(Vec2));
+  memcpy(g.texCords, (cube->texcoords + 2), texCordCount * sizeof(Vec2));
+
+  ///parse the file into objects
   unsigned int numObjects = cube->object_count;
   for(unsigned int objectID = 0; objectID < numObjects; objectID++)
   {
@@ -125,7 +144,7 @@ Vec3 dark = {20,20,20};
           for(unsigned int faceVertexId = 0; faceVertexId < 3; faceVertexId++)
           {
               fastObjIndex* vert = &cube->indices[indexOffset + (faceIndex * numFaceVerts) + faceVertexId];
-              unsigned int vertPIndex = (vert->p);
+              unsigned int vertPIndex = vert->p;
               unsigned int vertTIndex = vert->t;
               unsigned int vertNIndex = vert->n;
               printf("Vert1 pos index %u, x: %g, y: %g, z: %g\n", vertPIndex, cube->positions[vertPIndex * FLOATS_PER_POS + X], cube->positions[vertPIndex * FLOATS_PER_POS + Y], cube->positions[vertPIndex * FLOATS_PER_POS + Z]);
@@ -147,94 +166,93 @@ Vec3 dark = {20,20,20};
 
           //get the 4 verts
           fastObjIndex* vert1 = &cube->indices[indexOffset + (faceIndex * numFaceVerts) + VERT1];
-          unsigned int vert1PIndex = vert1->p;
-          unsigned int vert1TIndex = vert1->t;
-          unsigned int vert1NIndex = vert1->n;
+          unsigned int vert1PIndex = vert1->p - 1;// -1 because in the fast_obj lib, the verts are indexed from 1 not 0
+          unsigned int vert1TIndex = vert1->t - 1;
+          unsigned int vert1NIndex = vert1->n - 1;
 
           fastObjIndex* vert2 = &cube->indices[indexOffset + (faceIndex * numFaceVerts) + VERT2];
-          unsigned int vert2PIndex = vert2->p;
-          unsigned int vert2TIndex = vert2->t;
-          unsigned int vert2NIndex = vert2->n;
+          unsigned int vert2PIndex = vert2->p - 1;
+          unsigned int vert2TIndex = vert2->t - 1;
+          unsigned int vert2NIndex = vert2->n - 1;
 
           fastObjIndex* vert3 = &cube->indices[indexOffset + (faceIndex * numFaceVerts) + VERT3];
-          unsigned int vert3PIndex = vert3->p;
-          unsigned int vert3TIndex = vert3->t;
-          unsigned int vert3NIndex = vert3->n;
+          unsigned int vert3PIndex = vert3->p - 1;
+          unsigned int vert3TIndex = vert3->t - 1;
+          unsigned int vert3NIndex = vert3->n - 1;
 
           fastObjIndex* vert4 = &cube->indices[indexOffset + (faceIndex * numFaceVerts) + VERT4];
-          unsigned int vert4PIndex = vert4->p;
-          unsigned int vert4TIndex = vert4->t;
-          unsigned int vert4NIndex = vert4->n;
+          unsigned int vert4PIndex = vert4->p - 1;
+          unsigned int vert4TIndex = vert4->t - 1;
+          unsigned int vert4NIndex = vert4->n - 1;
 
           #ifdef DEBUG
-          printf("Vert1 pos index %u, x: %g, y: %g, z: %g\n", vert1PIndex, cube->positions[vert1PIndex * FLOATS_PER_POS + X], cube->positions[vert1PIndex * FLOATS_PER_POS + Y], cube->positions[vert1PIndex * FLOATS_PER_POS + Z]);
-          printf("Vert2 pos index %u, x: %g, y: %g, z: %g\n", vert2PIndex, cube->positions[vert2PIndex * FLOATS_PER_POS + X], cube->positions[vert2PIndex * FLOATS_PER_POS + Y], cube->positions[vert2PIndex * FLOATS_PER_POS + Z]);
-          printf("Vert3 pos index %u, x: %g, y: %g, z: %g\n", vert3PIndex, cube->positions[vert3PIndex * FLOATS_PER_POS + X], cube->positions[vert3PIndex * FLOATS_PER_POS + Y], cube->positions[vert3PIndex * FLOATS_PER_POS + Z]);
-          printf("Vert4 pos index %u, x: %g, y: %g, z: %g\n", vert4PIndex, cube->positions[vert4PIndex * FLOATS_PER_POS + X], cube->positions[vert4PIndex * FLOATS_PER_POS + Y], cube->positions[vert4PIndex * FLOATS_PER_POS + Z]);
+          printf("Vert1 pos index %u, x: %g, y: %g, z: %g\n", vert1PIndex, g.positions[vert1PIndex][X], g.positions[vert1PIndex][Y], g.positions[vert1PIndex][Z]);
+          printf("Vert2 pos index %u, x: %g, y: %g, z: %g\n", vert2PIndex, g.positions[vert2PIndex][X], g.positions[vert2PIndex][Y], g.positions[vert2PIndex][Z]);
+          printf("Vert3 pos index %u, x: %g, y: %g, z: %g\n", vert3PIndex, g.positions[vert3PIndex][X], g.positions[vert3PIndex][Y], g.positions[vert3PIndex][Z]);
+          printf("Vert4 pos index %u, x: %g, y: %g, z: %g\n", vert4PIndex, g.positions[vert4PIndex][X], g.positions[vert4PIndex][Y], g.positions[vert4PIndex][Z]);
 
-          printf("Vert1 tex index %u, u: %g, v: %g\n", vert1TIndex, cube->texcoords[vert1TIndex * FLOATS_PER_TEX + X], cube->texcoords[vert1TIndex * FLOATS_PER_TEX + Y]);
-          printf("Vert2 tex index %u, u: %g, v: %g\n", vert2TIndex, cube->texcoords[vert2TIndex * FLOATS_PER_TEX + X], cube->texcoords[vert2TIndex * FLOATS_PER_TEX + Y]);
-          printf("Vert3 tex index %u, u: %g, v: %g\n", vert3TIndex, cube->texcoords[vert3TIndex * FLOATS_PER_TEX + X], cube->texcoords[vert3TIndex * FLOATS_PER_TEX + Y]);
-          printf("Vert4 tex index %u, u: %g, v: %g\n", vert4TIndex, cube->texcoords[vert4TIndex * FLOATS_PER_TEX + X], cube->texcoords[vert4TIndex * FLOATS_PER_TEX + Y]);
+          printf("Vert1 tex index %u, u: %g, v: %g\n", vert1TIndex, g.texCords[vert1TIndex][X], g.texCords[vert1TIndex][Y]);
+          printf("Vert2 tex index %u, u: %g, v: %g\n", vert2TIndex, g.texCords[vert2TIndex][X], g.texCords[vert2TIndex][Y]);
+          printf("Vert3 tex index %u, u: %g, v: %g\n", vert3TIndex, g.texCords[vert3TIndex][X], g.texCords[vert3TIndex][Y]);
+          printf("Vert4 tex index %u, u: %g, v: %g\n", vert4TIndex, g.texCords[vert4TIndex][X], g.texCords[vert4TIndex][Y]);
 
-          printf("Vert1 normal index %u, x: %g, y: %g, z: %g\n", vert1NIndex, cube->normals[vert1NIndex * FLOATS_PER_NORM + X], cube->normals[vert1NIndex * FLOATS_PER_NORM + Y], cube->normals[vert1NIndex * FLOATS_PER_NORM + Z]);
-          printf("Vert2 normal index %u, x: %g, y: %g, z: %g\n", vert2NIndex, cube->normals[vert2NIndex * FLOATS_PER_NORM + X], cube->normals[vert2NIndex * FLOATS_PER_NORM + Y], cube->normals[vert2NIndex * FLOATS_PER_NORM + Z]);
-          printf("Vert3 normal index %u, x: %g, y: %g, z: %g\n", vert3NIndex, cube->normals[vert3NIndex * FLOATS_PER_NORM + X], cube->normals[vert3NIndex * FLOATS_PER_NORM + Y], cube->normals[vert3NIndex * FLOATS_PER_NORM + Z]);
-          printf("Vert4 normal index %u, x: %g, y: %g, z: %g\n", vert4NIndex, cube->normals[vert4NIndex * FLOATS_PER_NORM + X], cube->normals[vert4NIndex * FLOATS_PER_NORM + Y], cube->normals[vert4NIndex * FLOATS_PER_NORM + Z]);
+          printf("Vert1 normal index %u, x: %g, y: %g, z: %g\n", vert1NIndex, g.normals[vert1NIndex][X], g.normals[vert1NIndex][Y], g.normals[vert1NIndex][Z]);
+          printf("Vert2 normal index %u, x: %g, y: %g, z: %g\n", vert2NIndex, g.normals[vert2NIndex][X], g.normals[vert2NIndex][Y], g.normals[vert2NIndex][Z]);
+          printf("Vert3 normal index %u, x: %g, y: %g, z: %g\n", vert3NIndex, g.normals[vert3NIndex][X], g.normals[vert3NIndex][Y], g.normals[vert3NIndex][Z]);
+          printf("Vert4 normal index %u, x: %g, y: %g, z: %g\n", vert4NIndex, g.normals[vert4NIndex][X], g.normals[vert4NIndex][Y], g.normals[vert4NIndex][Z]);
           #endif
 
           //Get vertex indices
           //triangle 1
-          t1.vertIndex[0] = (vert1PIndex * FLOATS_PER_POS);
-          t1.vertIndex[1] = (vert2PIndex * FLOATS_PER_POS);
-          t1.vertIndex[2] = (vert3PIndex * FLOATS_PER_POS);
-          t1.textureIndex[0] = (vert1TIndex * FLOATS_PER_TEX);
-          t1.textureIndex[1] = (vert2TIndex * FLOATS_PER_TEX);
-          t1.textureIndex[2] = (vert3TIndex * FLOATS_PER_TEX);
-          t1.normalIndex[0] = (vert1NIndex * FLOATS_PER_NORM);
-          t1.normalIndex[1] = (vert2NIndex * FLOATS_PER_NORM);
-          t1.normalIndex[2] = (vert3NIndex * FLOATS_PER_NORM);
+          t1.vertIndex[0] = vert1PIndex;
+          t1.vertIndex[1] = vert2PIndex;
+          t1.vertIndex[2] = vert3PIndex;
+          t1.textureIndex[0] = vert1TIndex;
+          t1.textureIndex[1] = vert2TIndex;
+          t1.textureIndex[2] = vert3TIndex;
+          t1.normalIndex[0] = vert1NIndex;
+          t1.normalIndex[1] = vert2NIndex;
+          t1.normalIndex[2] = vert3NIndex;
 
           //triangle 2
-          t2.vertIndex[0] = (vert3PIndex * FLOATS_PER_POS);
-          t2.vertIndex[1] = (vert4PIndex * FLOATS_PER_POS);
-          t2.vertIndex[2] = (vert1PIndex * FLOATS_PER_POS);
-          t2.textureIndex[0] = (vert3TIndex * FLOATS_PER_TEX);
-          t2.textureIndex[1] = (vert4TIndex * FLOATS_PER_TEX);
-          t2.textureIndex[2] = (vert1TIndex * FLOATS_PER_TEX);
-          t2.normalIndex[0] = (vert3NIndex * FLOATS_PER_NORM);
-          t2.normalIndex[1] = (vert4NIndex * FLOATS_PER_NORM);
-          t2.normalIndex[2] = (vert1NIndex * FLOATS_PER_NORM);
+          t2.vertIndex[0] = vert3PIndex;
+          t2.vertIndex[1] = vert4PIndex;
+          t2.vertIndex[2] = vert1PIndex;
+          t2.textureIndex[0] = vert3TIndex;
+          t2.textureIndex[1] = vert4TIndex;
+          t2.textureIndex[2] = vert1TIndex;
+          t2.normalIndex[0] = vert3NIndex;
+          t2.normalIndex[1] = vert4NIndex;
+          t2.normalIndex[2] = vert1NIndex;
 
           #ifdef DEBUG
           ///print tri 1
           //vert pos
-          printf("T1 v0 pos x: %g, y: %g, z: %g\n", cube->positions[t1.vertIndex[0] + 0],  cube->positions[t1.vertIndex[0] + 1], cube->positions[t1.vertIndex[0] + 2]);
-          printf("T1 v1 pos x: %g, y: %g, z: %g\n", cube->positions[t1.vertIndex[1] + 0],  cube->positions[t1.vertIndex[1] + 1], cube->positions[t1.vertIndex[1] + 2]);
-          printf("T1 v2 pos x: %g, y: %g, z: %g\n", cube->positions[t1.vertIndex[2] + 0],  cube->positions[t1.vertIndex[2] + 1], cube->positions[t1.vertIndex[2] + 2]);
+          printf("T1 v0 pos x: %g, y: %g, z: %g\n", g.positions[t1.vertIndex[0]][X],  g.positions[t1.vertIndex[0]][Y], g.positions[t1.vertIndex[0]][Z]);
+          printf("T1 v1 pos x: %g, y: %g, z: %g\n", g.positions[t1.vertIndex[1]][X],  g.positions[t1.vertIndex[1]][Y], g.positions[t1.vertIndex[1]][Z]);
+          printf("T1 v2 pos x: %g, y: %g, z: %g\n", g.positions[t1.vertIndex[2]][X],  g.positions[t1.vertIndex[2]][Y], g.positions[t1.vertIndex[2]][Z]);
           //vert tex
-          printf("T1 v0 tex u: %g, v: %g\n", cube->texcoords[t1.textureIndex[0] + 0],  cube->texcoords[t1.textureIndex[0] + 1]);
-          printf("T1 v1 tex u: %g, v: %g\n", cube->texcoords[t1.textureIndex[1] + 0],  cube->texcoords[t1.textureIndex[1] + 1]);
-          printf("T1 v2 tex u: %g, v: %g\n", cube->texcoords[t1.textureIndex[2] + 0],  cube->texcoords[t1.textureIndex[2] + 1]);
+          printf("T1 v0 tex u: %g, v: %g\n", g.texCords[t1.textureIndex[0]][X],  g.texCords[t1.textureIndex[0]][Y]);
+          printf("T1 v1 tex u: %g, v: %g\n", g.texCords[t1.textureIndex[1]][X],  g.texCords[t1.textureIndex[1]][Y]);
+          printf("T1 v2 tex u: %g, v: %g\n", g.texCords[t1.textureIndex[2]][X],  g.texCords[t1.textureIndex[2]][Y]);
           //vert norms
-          printf("T1 v0 normal x: %g, y: %g, z: %g\n", cube->normals[t1.normalIndex[0] + 0],  cube->normals[t1.normalIndex[0] + 1], cube->normals[t1.normalIndex[0] + 2]);
-          printf("T1 v1 normal x: %g, y: %g, z: %g\n", cube->normals[t1.normalIndex[1] + 0],  cube->normals[t1.normalIndex[1] + 1], cube->normals[t1.normalIndex[1] + 2]);
-          printf("T1 v2 normal x: %g, y: %g, z: %g\n", cube->normals[t1.normalIndex[2] + 0],  cube->normals[t1.normalIndex[2] + 1], cube->normals[t1.normalIndex[2] + 2]);
+          printf("T1 v0 normal x: %g, y: %g, z: %g\n", g.normals[t1.normalIndex[0]][X],  g.normals[t1.normalIndex[0]][Y], g.normals[t1.normalIndex[0]][Z]);
+          printf("T1 v1 normal x: %g, y: %g, z: %g\n", g.normals[t1.normalIndex[1]][X],  g.normals[t1.normalIndex[1]][Y], g.normals[t1.normalIndex[1]][Z]);
+          printf("T1 v2 normal x: %g, y: %g, z: %g\n", g.normals[t1.normalIndex[2]][X],  g.normals[t1.normalIndex[2]][Y], g.normals[t1.normalIndex[2]][Z]);
 
           ///print tri 2
           //vert pos
-          printf("T2 v0 x: %g, y: %g, z: %g\n", cube->positions[t2.vertIndex[0] + 0],  cube->positions[t2.vertIndex[0] + 1], cube->positions[t2.vertIndex[0] + 2]);
-          printf("T2 v1 x: %g, y: %g, z: %g\n", cube->positions[t2.vertIndex[1] + 0],  cube->positions[t2.vertIndex[1] + 1], cube->positions[t2.vertIndex[1] + 2]);
-          printf("T2 v2 x: %g, y: %g, z: %g\n", cube->positions[t2.vertIndex[2] + 0],  cube->positions[t2.vertIndex[2] + 1], cube->positions[t2.vertIndex[2] + 2]);
-          printf("T2 v2 normal x: %g, y: %g, z: %g\n", cube->normals[t2.normalIndex[2] + 0],  cube->normals[t2.normalIndex[2] + 1], cube->normals[t2.normalIndex[2] + 2]);
+          printf("T2 v0 pos x: %g, y: %g, z: %g\n", g.positions[t2.vertIndex[0]][X],  g.positions[t2.vertIndex[0]][Y], g.positions[t2.vertIndex[0]][Z]);
+          printf("T2 v1 pos x: %g, y: %g, z: %g\n", g.positions[t2.vertIndex[1]][X],  g.positions[t2.vertIndex[1]][Y], g.positions[t2.vertIndex[1]][Z]);
+          printf("T2 v2 pos x: %g, y: %g, z: %g\n", g.positions[t2.vertIndex[2]][X],  g.positions[t2.vertIndex[2]][Y], g.positions[t2.vertIndex[2]][Z]);
           //vert tex
-          printf("T2 v0 tex u: %g, v: %g\n", cube->texcoords[t2.textureIndex[0] + 0],  cube->texcoords[t2.textureIndex[0] + 1]);
-          printf("T2 v1 tex u: %g, v: %g\n", cube->texcoords[t2.textureIndex[1] + 0],  cube->texcoords[t2.textureIndex[1] + 1]);
-          printf("T2 v2 tex u: %g, v: %g\n", cube->texcoords[t2.textureIndex[2] + 0],  cube->texcoords[t2.textureIndex[2] + 1]);
+          printf("T2 v0 tex u: %g, v: %g\n", g.texCords[t2.textureIndex[0]][X],  g.texCords[t2.textureIndex[0]][Y]);
+          printf("T2 v1 tex u: %g, v: %g\n", g.texCords[t2.textureIndex[1]][X],  g.texCords[t2.textureIndex[1]][Y]);
+          printf("T2 v2 tex u: %g, v: %g\n", g.texCords[t2.textureIndex[2]][X],  g.texCords[t2.textureIndex[2]][Y]);
           //vert norms
-          printf("T2 v0 normal x: %g, y: %g, z: %g\n", cube->normals[t2.normalIndex[0] + 0],  cube->normals[t2.normalIndex[0] + 1], cube->normals[t2.normalIndex[0] + 2]);
-          printf("T2 v1 normal x: %g, y: %g, z: %g\n", cube->normals[t2.normalIndex[1] + 0],  cube->normals[t2.normalIndex[1] + 1], cube->normals[t2.normalIndex[1] + 2]);
-          printf("T2 v2 normal x: %g, y: %g, z: %g\n", cube->normals[t2.normalIndex[2] + 0],  cube->normals[t2.normalIndex[2] + 1], cube->normals[t2.normalIndex[2] + 2]);
+          printf("T2 v0 normal x: %g, y: %g, z: %g\n", g.normals[t2.normalIndex[0]][X],  g.normals[t2.normalIndex[0]][Y], g.normals[t2.normalIndex[0]][Z]);
+          printf("T2 v1 normal x: %g, y: %g, z: %g\n", g.normals[t2.normalIndex[1]][X],  g.normals[t2.normalIndex[1]][Y], g.normals[t2.normalIndex[1]][Z]);
+          printf("T2 v2 normal x: %g, y: %g, z: %g\n", g.normals[t2.normalIndex[2]][X],  g.normals[t2.normalIndex[2]][Y], g.normals[t2.normalIndex[2]][Z]);
           #endif
           break;
         }
@@ -300,25 +318,6 @@ Vec3 dark = {20,20,20};
   //printf("objects: %u\n", cube->object_count);
 
 
-
-
-  ///Create a geometry from the obj file
-  G g;
-
-  //copy the vertex positions
-  unsigned int posCount = cube->position_count - 1;
-  g.positions = malloc(posCount * sizeof(Vec3));
-  memcpy(g.positions, (cube->positions) + 3, posCount * sizeof(Vec3));
-
-  //copy the vertex normals
-  unsigned int normCount = cube->normal_count - 1;
-  g.normals = malloc(normCount * sizeof(Vec3));
-  memcpy(g.normals, (cube->normals + 3), normCount * sizeof(Vec3));
-
-  //copy the tex cords
-  unsigned int texCordCount = cube->texcoord_count - 1;
-  g.texCords = malloc(texCordCount * sizeof(Vec2));
-  memcpy(g.texCords, (cube->texcoords + 2), texCordCount * sizeof(Vec2));
 
 /*
   for(unsigned int i = 0; i < posCount; i++)
