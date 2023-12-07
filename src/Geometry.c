@@ -19,6 +19,65 @@ Geometry genGeometry(unsigned int numTriangles, Vec3 position)
     return g;
 }
 
+G* genG(Vec3 *pPositions, Vec3 *pNormals, Vec2 *pTexCords, unsigned int maxTriangles)
+{
+    if(pPositions && pNormals && pTexCords)
+    {
+        G* g = malloc(sizeof(G));
+        if(g)
+        {
+            g->positions = pPositions;
+            g->normals = pNormals;
+            g->texCords = pTexCords;
+            g->triangles = malloc(maxTriangles * sizeof(T));
+            if(!g->triangles)
+            {
+                #ifdef DEBUG
+                printf("Error triangles failed to allocate\n");
+                #endif
+                free(g);
+                return 0;
+            }
+            g->maxTriangles = maxTriangles;
+            g->numTriangles = 0;
+        }
+        #ifdef DEBUG
+        printf("Error allocating geometry. Uninitialised buffers supplied\n");
+        #endif
+        return 0;
+    }
+    #ifdef DEBUG
+    printf("Error geometry failed to allocate\n");
+    #endif
+    return 0;
+
+}
+
+unsigned int Ginit(G* geom, Vec3 *pPositions, Vec3 *pNormals, Vec2 *pTexCords, unsigned int maxTriangles)//when we already have a G allocated
+{
+    if(pPositions && pNormals && pTexCords && geom)
+    {
+        geom->positions = pPositions;
+        geom->normals = pNormals;
+        geom->texCords = pTexCords;
+        geom->triangles = malloc(maxTriangles * sizeof(T));
+        if(!geom->triangles)
+        {
+            #ifdef DEBUG
+            printf("Error triangles failed to allocate\n");
+            #endif
+            return 0;
+        }
+        geom->maxTriangles = maxTriangles;
+        geom->numTriangles = 0;
+        return 1;
+    }
+    #ifdef DEBUG
+    printf("Error allocating geometry. Uninitialised buffers supplied\n");
+    #endif
+    return 0;
+}
+
 unsigned int geomAddTriangle(Geometry* geometry, Triangle triangle)
 {
     if(geometry)
@@ -61,6 +120,60 @@ unsigned int geomAddTriangle(Geometry* geometry, Triangle triangle)
     #endif
     return 0;
 }
+
+unsigned int GAddTriangle(G* geometry, T* triangle)
+{
+    if(geometry)
+    {
+        
+        //check we have enough space for more triangles
+        if(!(geometry->numTriangles < geometry->maxTriangles))
+        {
+            //need to make more space
+            unsigned int moreToAdd = (geometry->maxTriangles / 5) + 1;//how many additional entries to allocate. make sure we will always allocate at least one more space
+            unsigned int numToAllocate = geometry->maxTriangles + moreToAdd;
+            T* triTemp = malloc(numToAllocate * sizeof(T));//allocate new tri buffer
+
+            if(triTemp)
+            {
+                //copy the old buffers contents to the new buffers
+                memcpy(triTemp, geometry->triangles, numToAllocate * sizeof(T));
+                //clear the old buffer
+                free(geometry->triangles);
+                //swap the pointers to the new buffers
+                geometry->triangles = triTemp;
+                //update the max tris ctr
+                geometry->maxTriangles += moreToAdd;
+            }
+            else
+            {
+                #ifdef DEBUG
+                printf("Error: unable to allocate space for triangles.\n");
+                #endif
+                return 0;
+            }
+        }
+
+        //add the triangle and increment the counter
+        geometry->triangles[geometry->numTriangles].vertIndex[0] = triangle->vertIndex[0];
+        geometry->triangles[geometry->numTriangles].vertIndex[1] = triangle->vertIndex[1];
+        geometry->triangles[geometry->numTriangles].vertIndex[2] = triangle->vertIndex[2];
+        geometry->triangles[geometry->numTriangles].normalIndex[0] = triangle->normalIndex[0];
+        geometry->triangles[geometry->numTriangles].normalIndex[1] = triangle->normalIndex[1];
+        geometry->triangles[geometry->numTriangles].normalIndex[2] = triangle->normalIndex[2];
+        geometry->triangles[geometry->numTriangles].textureIndex[0] = triangle->textureIndex[0];
+        geometry->triangles[geometry->numTriangles].textureIndex[1] = triangle->textureIndex[1];
+        geometry->triangles[geometry->numTriangles].textureIndex[2] = triangle->textureIndex[2];
+        
+        geometry->numTriangles++;
+        return 1;
+    }
+    #ifdef DEBUG
+    printf("Error: Invalid geometry to add triangle to\n");
+    #endif
+    return 0;
+}
+
 
 
 inline Triangle* geomGetTriangle(Geometry* geometry, unsigned int index)

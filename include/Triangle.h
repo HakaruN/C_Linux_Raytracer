@@ -19,7 +19,7 @@ typedef struct T{
   unsigned int vertIndex[3];
   unsigned int normalIndex[3];
   unsigned int textureIndex[3];
-  Vec3 position;
+  //Vec3 position;
   Texture* texture;
 } T;
 
