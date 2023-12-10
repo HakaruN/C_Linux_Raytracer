@@ -47,9 +47,10 @@ unsigned int GAddTriangle(G* geometry, T* triangle);
 
 Triangle* geomGetTriangle(Geometry* geometry, unsigned int index);
 
-BBox* geomGenAABB(Geometry* geometry);
+//BBox* geomGenAABB(Geometry* geometry);
+BBox* geomGenAABB(G* geometry);
 
-void GeometryFree(Geometry* geom);
+void GeometryFree(G* geometry);
 
 
 

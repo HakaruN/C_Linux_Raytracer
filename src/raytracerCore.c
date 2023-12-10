@@ -65,12 +65,14 @@ int main()
 
 
 //colours
+/*
 Vec3 red = {255,128,128};
 Vec3 green = {128,255,128};
 Vec3 blue = {128,128,255};
 Vec3 grey = {100,100,100};
 Vec3 white = {255,255,255};
 Vec3 dark = {20,20,20};
+*/
 
   //load some textures
   if(!textures)
@@ -96,99 +98,29 @@ Vec3 dark = {20,20,20};
     G* geom = &m1->geometries[geomId];
     for(unsigned int triIdx = 0; triIdx < geom->numTriangles; triIdx++)
     {
-      printf("\tTriagnle %u: \n", triIdx);
+      printf("\tTriangle %u: \n", triIdx);
       T* t = &geom->triangles[triIdx];
-      
+
+      geom->triangles[triIdx].texture = &textures[0];
       for(unsigned int vertIdx = 0; vertIdx < 3; vertIdx++)
       {
-        unsigned int vertPosIdx = t->vertIndex[vertIdx];
-        unsigned int vertTexIdx = t->textureIndex[vertIdx];
-        unsigned int vertNormIdx = t->normalIndex[vertIdx];
-        printf("\t\tVertex %u (pos idx: %u) tex idx: %u, norm idx: %u)\n", vertIdx, vertPosIdx, vertTexIdx, vertNormIdx);
-        printf("\t\t\t Pos: %g, %g, %g\n", m1->positions[vertPosIdx][X], m1->positions[vertPosIdx][Y], m1->positions[vertPosIdx][Z]);
-        printf("\t\t\t Tex: %g, %g\n", m1->texCords[vertTexIdx][X], m1->texCords[vertTexIdx][Y]);
-        printf("\t\t\t Norm: %g, %g, %g\n", m1->normals[vertNormIdx][X], m1->normals[vertNormIdx][Y], m1->normals[vertNormIdx][Z]);
+        printf("\t\tVertex %u\n", vertIdx);
+        Vec3 vPos;
+        Vec2 vTex;
+        Vec3 vNrm;
+        memcpy(vPos, t->vertPosition[vertIdx], sizeof(Vec3));
+        memcpy(vTex, t->vertTexture[vertIdx], sizeof(Vec2));
+        memcpy(vNrm, t->vertNormal[vertIdx], sizeof(Vec3));
+        printf("\t\t\t Pos: %g, %g, %g\n", vPos[0], vPos[1], vPos[2]);       
+        printf("\t\t\t Tex: %g, %g\n", vTex[X], vTex[Y]);        
+        printf("\t\t\t Nrm: %g, %g, %g\n", vNrm[X], vNrm[Y], vNrm[Z]);        
+
+
       }
     }
   }
   
- 
-  //////////
-  //VERTICES
-  //////////
-  Vec3 normal = {1,1,1};
-  //Generate the vertices list
-  const unsigned int vLen = 17;//num verts
-  Vertices vertices = verticesGen(vLen);
-  if(vertices.vertices != NULL)
-    printf("Vertices buffer generated\n");
-  else{
-    printf("Vertices buffer failed to gen\n");
-    return -1;}
-
-
-  //Each triangle will have 3 verts
-  //triangle 1  
-  verticesAddVert(&vertices, vertexGen((Vec3){-50, 0, 0}, normal, red, (Vec2){0, 0}));
-  verticesAddVert(&vertices, vertexGen((Vec3){50, 0, 0}, normal, green, (Vec2){1, 0}));
-  verticesAddVert(&vertices, vertexGen((Vec3){0, 100, 0}, normal, blue, (Vec2){0.5, 1}));
-  
-  //triangle 2
-  verticesAddVert(&vertices, vertexGen((Vec3){-50, 0, 0}, normal, grey, (Vec2){0, 0}));
-  verticesAddVert(&vertices, vertexGen((Vec3){50, 0, 0}, normal, white, (Vec2){1, 0}));
-  verticesAddVert(&vertices, vertexGen((Vec3){0, 50, 0}, normal, dark, (Vec2){0.5, 1}));
-  
-  //triangle 3
-  verticesAddVert(&vertices, vertexGen((Vec3){100, 50, 5}, normal, red, (Vec2){0.25, 0.1}));
-  verticesAddVert(&vertices, vertexGen((Vec3){300, 100, 5}, normal, green, (Vec2){0.75, 0.1}));
-  verticesAddVert(&vertices, vertexGen((Vec3){200, 125, 25}, normal, blue, (Vec2){0.5,0.75}));
-  //triangle 4
-  verticesAddVert(&vertices, vertexGen((Vec3){0, 0, 0}, normal, green, (Vec2){0, 0}));
-  verticesAddVert(&vertices, vertexGen((Vec3){50, 0, 0}, normal, red, (Vec2){1, 0}));
-  verticesAddVert(&vertices, vertexGen((Vec3){50, 50, 0}, normal, blue, (Vec2){1, 1}));
-
-
-  //////////////////
-  //MESH && GEOMETRY
-  //////////////////
-  Mesh mesh = meshGen(1);
-  Vec3 geomPos = {200, 200, 100};
-  unsigned int numTriangles = 2;
-  meshGenGeometry(&mesh, numTriangles, geomPos);//Adding geom 1 to the mesh
-  meshGenGeometry(&mesh, numTriangles, geomPos);//Adding geom 2 to the mesh
-
-  ////////////////
-  //TRIANGLES
-  ////////////////  
-  Vertex verts[3];
-  unsigned int geomId = 0;//add the triangles to geom 0
-  verts[0] = *verticesGetVert(&vertices, 0);
-  verts[1] = *verticesGetVert(&vertices, 1);
-  verts[2] = *verticesGetVert(&vertices, 2);
-  if(!meshGeomAddTri(&mesh, geomId, triangleGen(verts, (Vec3){200, 200, 100}, textures[0].image == NULL ? NULL: &textures[0])))
-    return 0;
-
-  verts[0] = *verticesGetVert(&vertices, 3);
-  verts[1] = *verticesGetVert(&vertices, 4);
-  verts[2] = *verticesGetVert(&vertices, 5);
-  if(!meshGeomAddTri(&mesh, geomId, triangleGen(verts, (Vec3){100, 100, 5}, textures[1].image == NULL ? NULL: &textures[1])))
-    return 0;
-
-  geomId = 1;//add the triangles to geom 1
-  verts[0] = *verticesGetVert(&vertices, 6);
-  verts[1] = *verticesGetVert(&vertices, 7);
-  verts[2] = *verticesGetVert(&vertices, 8);
-  if(!meshGeomAddTri(&mesh, geomId, triangleGen(verts, (Vec3){0, 0, 0}, NULL)))
-    return 0;
-
-  verts[0] = *verticesGetVert(&vertices, 9);
-  verts[1] = *verticesGetVert(&vertices, 10);
-  verts[2] = *verticesGetVert(&vertices, 11);
-  if(!meshGeomAddTri(&mesh, geomId, triangleGen(verts, (Vec3){0, 0, 5}, textures[1].image == NULL ? NULL: &textures[1])))
-    return 0;
-
-
-  //////////////////
+   //////////////////
   //BVH
   //////////////////
   //Setup the bvh node
@@ -198,7 +130,8 @@ Vec3 dark = {20,20,20};
   BvhNode* rootNode = bvhNodeGen(8, 1, rootBox);
 
   //first tri goes in the root node just to show it can do and will still work
-  meshInsertToBvh(&mesh, rootNode);
+  //meshInsertToBvh(&mesh, rootNode);
+  mInsertToBvh(m1, rootNode);
 
 
 
@@ -229,7 +162,7 @@ Vec3 dark = {20,20,20};
       traceRays(rootNode, &camera, rayHitBuffer, rayHitpointBuffer, rayHitnormalBuffer, rayHitDirectionBuffer, fbDescriptor, invHeightMinus1, invWidthMinus1);
 
       ///Secondary rays
-      traceSecondaryRays(rootNode, rayHitBuffer, rayHitpointBuffer, rayHitnormalBuffer, rayHitDirectionBuffer, fbDescriptor);
+      //traceSecondaryRays(rootNode, rayHitBuffer, rayHitpointBuffer, rayHitnormalBuffer, rayHitDirectionBuffer, fbDescriptor);
 
       ///Shading, sample the texture or interpolate vertex colours of where we hit and put it in the framebuffer
       shading(frameBuffer, rayHitBuffer, rayHitpointBuffer, rayHitnormalBuffer, rayHitDirectionBuffer, fbDescriptor);
@@ -246,7 +179,7 @@ Vec3 dark = {20,20,20};
       #ifdef FRAME_TIMINGS
       diff = clock() - start;
       int msec = diff * 1000 /CLOCKS_PER_SEC;
-      printf("Frametime: %d\n", msec%1000);
+      //printf("Frametime: %d\n", msec%1000);
       #endif
     }
 

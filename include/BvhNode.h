@@ -12,7 +12,7 @@ static const unsigned int bvhNumChildrenMax = 2;
 typedef struct BvhNode{
   BBox boundingBox;//The bounding volume of this node
   struct BvhNode** children;//Array of BVH node pointers  
-  Geometry** geometries;//List of geometry pointers in this node
+  G** geometries;//List of geometry pointers in this node
   unsigned int numChildren, numGeometries;//num geometrys and nodes in the lists
   unsigned int childrenMax, geometriesMax;//max number (allocated space)
 } BvhNode;
@@ -20,8 +20,9 @@ typedef struct BvhNode{
 BvhNode* bvhNodeGen(unsigned int childrenSize, unsigned int geometriesSize, BBox* boundingBox);
 void bvhNodeFree(BvhNode* node);
 void bvhAddChild(BvhNode* node, BvhNode* child);
-BvhNode* bvhAddGeometry(BvhNode* node, Geometry* triangle);
-Triangle* testBVH(Ray* ray, BvhNode* node, Vec3 intersectionPoint);
+//BvhNode* bvhAddGeometry(BvhNode* node, Geometry* triangle);
+BvhNode* bvhAddG(BvhNode* node, G* triangle);
+T* testBVH(Ray* ray, BvhNode* node, Vec3 intersectionPoint);
 
 
 #endif

@@ -19,6 +19,9 @@ typedef struct T{
   unsigned int vertIndex[3];
   unsigned int normalIndex[3];
   unsigned int textureIndex[3];
+  Vec3 vertPosition[3];//pointers to the vert positions 
+  Vec2 vertTexture[3];
+  Vec3 vertNormal[3];
   //Vec3 position;
   Texture* texture;
 } T;

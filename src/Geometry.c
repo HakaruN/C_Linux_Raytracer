@@ -154,7 +154,8 @@ unsigned int GAddTriangle(G* geometry, T* triangle)
             }
         }
 
-        //add the triangle and increment the counter
+        ///add the triangle and increment the counter
+        //vertex indices
         geometry->triangles[geometry->numTriangles].vertIndex[0] = triangle->vertIndex[0];
         geometry->triangles[geometry->numTriangles].vertIndex[1] = triangle->vertIndex[1];
         geometry->triangles[geometry->numTriangles].vertIndex[2] = triangle->vertIndex[2];
@@ -164,6 +165,19 @@ unsigned int GAddTriangle(G* geometry, T* triangle)
         geometry->triangles[geometry->numTriangles].textureIndex[0] = triangle->textureIndex[0];
         geometry->triangles[geometry->numTriangles].textureIndex[1] = triangle->textureIndex[1];
         geometry->triangles[geometry->numTriangles].textureIndex[2] = triangle->textureIndex[2];
+
+        //copy the positions
+        memcpy(geometry->triangles[geometry->numTriangles].vertPosition[0], triangle->vertPosition[0], sizeof(Vec3));
+        memcpy(geometry->triangles[geometry->numTriangles].vertPosition[1], triangle->vertPosition[1], sizeof(Vec3));
+        memcpy(geometry->triangles[geometry->numTriangles].vertPosition[2], triangle->vertPosition[2], sizeof(Vec3));
+        //copy the normals
+        memcpy(geometry->triangles[geometry->numTriangles].vertNormal[0], triangle->vertNormal[0], sizeof(Vec3));
+        memcpy(geometry->triangles[geometry->numTriangles].vertNormal[1], triangle->vertNormal[1], sizeof(Vec3));
+        memcpy(geometry->triangles[geometry->numTriangles].vertNormal[2], triangle->vertNormal[2], sizeof(Vec3));
+        //copy the tex cords
+        memcpy(geometry->triangles[geometry->numTriangles].vertTexture[0], triangle->vertTexture[0], sizeof(Vec2));
+        memcpy(geometry->triangles[geometry->numTriangles].vertTexture[1], triangle->vertTexture[1], sizeof(Vec2));
+        memcpy(geometry->triangles[geometry->numTriangles].vertTexture[2], triangle->vertTexture[2], sizeof(Vec2));
         
         geometry->numTriangles++;
         return 1;
@@ -183,7 +197,7 @@ inline Triangle* geomGetTriangle(Geometry* geometry, unsigned int index)
 
     return NULL;
 }
-
+/*
 inline BBox* geomGenAABB(Geometry* geometry)
 { 
     if(geometry)
@@ -215,16 +229,61 @@ inline BBox* geomGenAABB(Geometry* geometry)
         return b;
     }
     return NULL;
+}
+*/
 
+inline BBox* geomGenAABB(G* geometry)
+{
+    if(geometry)
+    {
+        BBox* b = malloc(sizeof(BBox));
+        b->min[0] = 0; b->min[1] = 0; b->min[2] = 0;
+        b->max[0] = 0; b->max[1] = 0; b->max[2] = 0;
+        for(unsigned int t = 0; t < geometry->numTriangles; t++)//iterate through each tri
+        {
+            T* triangle = &geometry->triangles[t];
+            Vec3* positions = geometry->positions;
+            for(unsigned int v = 0; v < 3; v++)
+            {
+                //find the max x
+                Vec3 vertPos;
+                vertPos[X] = positions[triangle->vertIndex[v]][X];
+                vertPos[Y] = positions[triangle->vertIndex[v]][Y];
+                vertPos[Z] = positions[triangle->vertIndex[v]][Z];
+                b->max[0] = vertPos[X] > b->max[0] ? vertPos[X] : b->max[0];
+                b->min[0] = vertPos[X] < b->min[0] ? vertPos[X] : b->min[0];
+                //find the max y
+                b->max[1] = vertPos[Y] > b->max[1] ? vertPos[Y] : b->max[1];
+                b->min[1] = vertPos[Y] < b->min[1] ? vertPos[Y] : b->min[1];
+                //find the max z
+                b->max[2] = vertPos[Z] > b->max[2] ? vertPos[Z] : b->max[2];
+                b->min[2] = vertPos[Z] < b->min[2] ? vertPos[Z] : b->min[2];
+            }
+        }
+        #ifdef DEBUG
+        printf("AABB min: ");
+        printVec3(b->min);
+        printf("AABB max: ");
+        printVec3(b->max);
+        #endif
+        return b;
+    }
+    return NULL;
 }
 
-void GeometryFree(Geometry* geom)
+
+void GeometryFree(G* geometry)
 {
-    if(geom)
+    if(geometry)
     {
-        if(geom->numTriangles > 0){
-	      for(unsigned int i = 0; i < geom->numTriangles; i++)
-	        freeTriangle(geom->triangles);
-        }
+        if(geometry->positions)
+            free(geometry->positions);
+        if(geometry->normals)
+            free(geometry->normals);
+        if(geometry->texCords)
+            free(geometry->texCords);
+        if(geometry->triangles)
+            free(geometry->triangles);
+        
     }
 }

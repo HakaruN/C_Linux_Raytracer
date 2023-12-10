@@ -32,6 +32,7 @@ unsigned int meshAddGeom(M* mesh, G* geom);
 
 //insert to BVH
 void meshInsertToBvh(Mesh* mesh, BvhNode* bvh);
+void mInsertToBvh(M* mesh, BvhNode* bvh);
 
 Geometry* meshGetGeometry(Mesh* mesh, unsigned int meshIdx);
 BvhNode* mGetBvhPtr(Mesh* mesh, unsigned int meshIdx);

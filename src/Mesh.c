@@ -185,8 +185,8 @@ inline M* meshLoadOBJ(const char *filePath)
                 unsigned int vert4TIndex = vert4->t - 1;
                 unsigned int vert4NIndex = vert4->n - 1;
 
+                ///triangle 1
                 //Get vertex indices
-                //triangle 1
                 t1.vertIndex[0] = vert1PIndex;
                 t1.vertIndex[1] = vert2PIndex;
                 t1.vertIndex[2] = vert3PIndex;
@@ -196,8 +196,18 @@ inline M* meshLoadOBJ(const char *filePath)
                 t1.normalIndex[0] = vert1NIndex;
                 t1.normalIndex[1] = vert2NIndex;
                 t1.normalIndex[2] = vert3NIndex;
+                //get vertex values
+                memcpy(t1.vertPosition[0], mesh->positions[vert1PIndex], sizeof(Vec3));
+                memcpy(t1.vertPosition[1], mesh->positions[vert2PIndex], sizeof(Vec3));
+                memcpy(t1.vertPosition[2], mesh->positions[vert3PIndex], sizeof(Vec3));
+                memcpy(t1.vertTexture[0], mesh->texCords[vert1TIndex], sizeof(Vec2));
+                memcpy(t1.vertTexture[1], mesh->texCords[vert2TIndex], sizeof(Vec2));
+                memcpy(t1.vertTexture[2], mesh->texCords[vert3TIndex], sizeof(Vec2));
+                memcpy(t1.vertNormal[0], mesh->normals[vert1PIndex], sizeof(Vec3));
+                memcpy(t1.vertNormal[1], mesh->normals[vert2PIndex], sizeof(Vec3));
+                memcpy(t1.vertNormal[2], mesh->normals[vert3PIndex], sizeof(Vec3));
 
-                //triangle 2
+                ///triangle 2
                 t2.vertIndex[0] = vert3PIndex;
                 t2.vertIndex[1] = vert4PIndex;
                 t2.vertIndex[2] = vert1PIndex;
@@ -207,6 +217,16 @@ inline M* meshLoadOBJ(const char *filePath)
                 t2.normalIndex[0] = vert3NIndex;
                 t2.normalIndex[1] = vert4NIndex;
                 t2.normalIndex[2] = vert1NIndex;
+                //get vertex values
+                memcpy(t2.vertPosition[0], mesh->positions[vert3PIndex], sizeof(Vec3));
+                memcpy(t2.vertPosition[1], mesh->positions[vert4PIndex], sizeof(Vec3));
+                memcpy(t2.vertPosition[2], mesh->positions[vert1PIndex], sizeof(Vec3));
+                memcpy(t2.vertTexture[0], mesh->texCords[vert3TIndex], sizeof(Vec2));
+                memcpy(t2.vertTexture[1], mesh->texCords[vert4TIndex], sizeof(Vec2));
+                memcpy(t2.vertTexture[2], mesh->texCords[vert1TIndex], sizeof(Vec2));
+                memcpy(t2.vertNormal[0], mesh->normals[vert3PIndex], sizeof(Vec3));
+                memcpy(t2.vertNormal[1], mesh->normals[vert4PIndex], sizeof(Vec3));
+                memcpy(t2.vertNormal[2], mesh->normals[vert1PIndex], sizeof(Vec3));
                 //add the tris to the geom
                 GAddTriangle(&mesh->geometries[objectID], &t1);
                 GAddTriangle(&mesh->geometries[objectID], &t2);
@@ -224,6 +244,7 @@ inline M* meshLoadOBJ(const char *filePath)
         //Add the geom to the mesh
         meshAddGeom(mesh, g);
     }
+    fast_obj_destroy(loadMesh);
     return mesh;  
 }
 
@@ -277,12 +298,23 @@ unsigned int meshAddGeom(M* mesh, G* geometry)
     }
 }
 
+/*
 inline void meshInsertToBvh(Mesh* mesh, BvhNode* bvh)
 {
     if(mesh && bvh)
     {
         for(unsigned int idx = 0; idx < mesh->numGeometries; idx++)
             mesh->nodeToGeomBkPtr[idx] = bvhAddGeometry(bvh, &mesh->geometries[idx]);
+    }
+}
+*/
+
+inline void mInsertToBvh(M* mesh, BvhNode* bvh)
+{
+    if(mesh && bvh)
+    {
+        for(unsigned int idx = 0; idx < mesh->numGeometries; idx++)
+            mesh->nodeToGeomBkPtr[idx] = bvhAddG(bvh, &mesh->geometries[idx]);
     }
 }
 
