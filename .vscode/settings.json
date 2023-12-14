@@ -6,6 +6,7 @@
         "box.h": "c",
         "mesh.h": "c",
         "framebuffer.h": "c",
-        "limits": "c"
+        "limits": "c",
+        "stdio.h": "c"
     }
 }

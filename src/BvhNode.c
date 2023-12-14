@@ -99,6 +99,7 @@ void bvhAddChild(BvhNode* node, BvhNode* child)
   }
 }
 
+/*
 BvhNode* bvhAddGeometry(BvhNode* node, Geometry* geometry)
 {
   if(node){
@@ -141,6 +142,50 @@ BvhNode* bvhAddGeometry(BvhNode* node, Geometry* geometry)
   }
   return NULL;
 }
+*/
+
+BvhNode* bvhAddG(BvhNode* node, G* geometry)
+{
+if(node){
+    if(node->numGeometries >= node->geometriesMax)
+    {//if the Bvh is full, make a child that fits perfectly around the geometry and add it as a child to the parent. Then add the geom to that.
+      if(node->numChildren == 0){
+        BBox* b = geomGenAABB(geometry);
+        BvhNode* childNode = bvhNodeGen(1, 1, b);
+        bvhAddChild(node, childNode);
+      }
+      
+      return bvhAddG(node->children[0], geometry);
+    }
+    else
+    {
+      const unsigned int numToAllocate = 1;//basically just a default val
+      if(!node->geometries){//check if the geom list is not allocated
+        node->geometries = malloc(numToAllocate * sizeof(G*));
+        memset(node->geometries, (int)NULL, numToAllocate * sizeof(G*));//NULL out the geoms ptrs
+        node->geometriesMax = numToAllocate;
+        node->numGeometries = 0;
+      }
+      if(node->numGeometries >= node->geometriesMax){
+        //need to allocate more space
+        G** tmpGeoms = malloc((node->numGeometries + numToAllocate) * sizeof(G*));
+        memset(tmpGeoms, (int)NULL, (node->numGeometries + numToAllocate) * sizeof(G*));//NULL out the whole temp ptr buffer
+        //copy the existing geoms into the new buffer
+        memcpy(tmpGeoms, node->geometries, node->numGeometries * sizeof(G*));
+        //free the old buffer and exchange the ptr
+        free(node->geometries);
+        node->geometries = tmpGeoms;
+        node->geometriesMax = node->geometriesMax + numToAllocate;//Add space for the new geom(s)
+      }
+
+      //copy the geometry ptr into the buffer
+      node->geometries[node->numGeometries] = geometry;
+      node->numGeometries++;
+      return node;
+    }
+  }
+  return NULL;
+}
 
 
 
@@ -152,9 +197,9 @@ BvhNode* bvhAddGeometry(BvhNode* node, Geometry* geometry)
 /// @param intersectionPoint 
 /// @param distance 
 /// @return 
-inline Triangle* testBVH(Ray* ray, BvhNode* bvhNode, Vec3 intersectionPoint)
+inline T* testBVH(Ray* ray, BvhNode* bvhNode, Vec3 intersectionPoint)
 {
-  Triangle* closestTri = NULL;
+  T* closestTri = NULL;
 
   //recurse into our children to check for intersections
   int numChildren = bvhNode->numChildren;
@@ -162,7 +207,7 @@ inline Triangle* testBVH(Ray* ray, BvhNode* bvhNode, Vec3 intersectionPoint)
   {
     for(int i = 0; i < numChildren; i++)
     {
-      Triangle* triangle = testBVH(ray, bvhNode->children[i], intersectionPoint);
+      T* triangle = testBVH(ray, bvhNode->children[i], intersectionPoint);
       if(triangle)
         closestTri = triangle;
     }
@@ -178,18 +223,18 @@ inline Triangle* testBVH(Ray* ray, BvhNode* bvhNode, Vec3 intersectionPoint)
     {
       for(int g = 0; g < numGeometries; g++)
       {
-        Geometry* geometry = bvhNode->geometries[g];
+        //Geometry* geometry = bvhNode->geometries[g];
+        G* geometry = bvhNode->geometries[g];
+        
         unsigned int numTris = geometry->numTriangles;
           for(int t = 0; t < numTris; t++)
           {
-            Triangle* triangle = &geometry->triangles[t];
-
-#ifdef RELATIVE_VERTS
-            if(triangleIntersect(triangle->verts[0].transformedPosition, triangle->verts[1].transformedPosition, triangle->verts[2].transformedPosition, ray, intersectionPoint))
+            T* triangle = &geometry->triangles[t];       
+#ifdef RELATIVE_VERTS 
+            if(triangleIntersect(triangle->vertTransformedPosition[0], triangle->vertTransformedPosition[1], triangle->vertTransformedPosition[2], ray, intersectionPoint))
 #else
            if(triangleIntersect(triangle->verts[0].position, triangle->verts[1].position, triangle->verts[2].position, ray, intersectionPoint))
-#endif
-        
+#endif        
             {
 
                 closestTri = triangle;

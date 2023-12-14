@@ -1,5 +1,6 @@
 #include "../include/Triangle.h"
 
+
 Triangle triangleGen(Vertex* verts, Vec3 pos, Texture* texture)
 {
   Triangle t;
@@ -38,6 +39,7 @@ void freeTriangle(Triangle* triangle)
 
   return;
 }
+
 
 inline void barycentricCoords(Vec3 out, Vec3 vert0, Vec3 vert1, Vec3 vert2, Vec3 point)
 {
@@ -84,7 +86,7 @@ int triangleIntersect(Vec3 v0, Vec3 v1, Vec3 v2, Ray* ray, Vec3 intersectionPoin
   Vec3 edge2 = {v2[0] - v0[0], v2[1] - v0[1], v2[2] - v0[2]};
 
   cross(ray->direction, edge2, h);
-  a = dot(edge1, h);
+  a = vec3Dot(edge1, h);
   if(a > -EPSILON && a < EPSILON)
     return 0;
 
@@ -92,16 +94,16 @@ int triangleIntersect(Vec3 v0, Vec3 v1, Vec3 v2, Ray* ray, Vec3 intersectionPoin
   //  Vec3 s = {ray->origin[0] - v0[0], ray->origin[1] - v0[1], ray->origin[2] - v0[2]};
   Vec3 s;
   vec3Sub(ray->origin, v0, s);
-  u = f * dot(s,h);
+  u = f * vec3Dot(s,h);
   if(u<0.0 || u >1.0)
     return 0;
 
   cross(s, edge1, q);
-  v = f * dot(ray->direction, q);
+  v = f * vec3Dot(ray->direction, q);
   if(v<0.0 || u + v > 1.0)
     return 0;
 
-  float newDist = f * dot(edge2, q);
+  float newDist = f * vec3Dot(edge2, q);
   if(newDist < ray->distance)
   {
     ray->distance = newDist;
