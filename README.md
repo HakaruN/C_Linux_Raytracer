@@ -7,8 +7,6 @@
 Current TODO:
 * Implement secondary rays
 * Implement a perspective camera
-* Implement proper transforms for all of the objects
-* Add an importer for proper 3d file formats (eg .obj)
 * Implement a multithreaded implementation
 
 Clone:
