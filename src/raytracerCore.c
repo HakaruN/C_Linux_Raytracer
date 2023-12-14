@@ -119,16 +119,6 @@ int main()
     //////SOME HOW THIS MEMCPY CAUSES RUNTIME ERRORS. ANY WRITE TO THE TRANSFORM MAT DOES.
     memcpy(&m1->geometries[i].transform, transfomMat, sizeof(Mat4));
   }
-
-  /*
-  for(unsigned int i = 0; i < 4; i++)
-  {
-    for(unsigned int j = 0; j < 4; j++)
-    {
-      m1->geometries[0].transform[i][j] = translateMat[i][j];
-    }
-  }
-  */
   
 
   /// Print the loaded model
@@ -224,7 +214,7 @@ int main()
 #ifdef FRAME_TIMINGS
     diff = clock() - start;
     int msec = diff * 1000 / CLOCKS_PER_SEC;
-// printf("Frametime: %d\n", msec%1000);
+    printf("Frametime: %d\n", msec%1000);
 #endif
   }
 
