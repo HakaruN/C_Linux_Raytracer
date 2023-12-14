@@ -1,5 +1,9 @@
 # C_Linux_Raytracer
 
+
+![plot](Images/TexturesAndVertColours.jpg)
+![plot](Images/2Cubes.png)
+
 Current TODO:
 * Implement secondary rays
 * Implement a perspective camera
