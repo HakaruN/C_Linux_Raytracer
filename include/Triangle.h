@@ -14,19 +14,21 @@ typedef struct Triangle{
   Texture* texture;
 } Triangle;
 
+
 typedef struct T{
   //Vertex data for the 3 verts
   unsigned int vertIndex[3];
   unsigned int normalIndex[3];
   unsigned int textureIndex[3];
-  Vec3 vertPosition[3];//pointers to the vert positions 
+  Vec3 vertPosition[3];
+  Vec4 vertTransformedPosition[3];//transformed positions
   Vec2 vertTexture[3];
   Vec3 vertNormal[3];
   //Vec3 position;
   Texture* texture;
 } T;
 
-Triangle triangleGen(Vertex* verts, Vec3 Pos, Texture* texture);
+//Triangle triangleGen(Vertex* verts, Vec3 Pos, Texture* texture);
 
 //delete triangle
 //void triDeleteTriangle()

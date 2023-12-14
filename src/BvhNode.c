@@ -229,15 +229,12 @@ inline T* testBVH(Ray* ray, BvhNode* bvhNode, Vec3 intersectionPoint)
         unsigned int numTris = geometry->numTriangles;
           for(int t = 0; t < numTris; t++)
           {
-            T* triangle = &geometry->triangles[t];
-
+            T* triangle = &geometry->triangles[t];       
 #ifdef RELATIVE_VERTS 
-            if(triangleIntersect(triangle->vertPosition[0], triangle->vertPosition[1], triangle->vertPosition[2], ray, intersectionPoint))
-            //if(triangleIntersect(triangle->verts[0].transformedPosition, triangle->verts[1].transformedPosition, triangle->verts[2].transformedPosition, ray, intersectionPoint))
+            if(triangleIntersect(triangle->vertTransformedPosition[0], triangle->vertTransformedPosition[1], triangle->vertTransformedPosition[2], ray, intersectionPoint))
 #else
            if(triangleIntersect(triangle->verts[0].position, triangle->verts[1].position, triangle->verts[2].position, ray, intersectionPoint))
-#endif
-        
+#endif        
             {
 
                 closestTri = triangle;

@@ -1,5 +1,6 @@
 #include "../include/Triangle.h"
 
+
 Triangle triangleGen(Vertex* verts, Vec3 pos, Texture* texture)
 {
   Triangle t;
@@ -38,6 +39,7 @@ void freeTriangle(Triangle* triangle)
 
   return;
 }
+
 
 inline void barycentricCoords(Vec3 out, Vec3 vert0, Vec3 vert1, Vec3 vert2, Vec3 point)
 {

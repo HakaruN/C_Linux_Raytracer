@@ -9,6 +9,7 @@
 #define X 0
 #define Y 1
 #define Z 2
+#define W 3
 #define VERT1 0
 #define VERT2 1
 #define VERT3 2
@@ -32,8 +33,9 @@ typedef struct G{
     Vec3 *positions, *normals;
     Vec2 *texCords;
     unsigned int maxTriangles, numTriangles;//Number of triangles we have space allocated for in the arrays, num triangles actually allocated in the array.
-    //Vec3 position;//position of the Geometry in 3D space
-    //Mat4 transform;
+    Vec4 position;
+    Vec4 Scale;//position of the Geometry in 3D space
+    Mat4 transform;
     //unsigned long geometryID;//unique ID of this geometry
 } G;
 
@@ -43,6 +45,7 @@ unsigned int Ginit(G* geom, Vec3 *pPositions, Vec3 *pNormals, Vec2 *pTexCords, u
 
 unsigned int geomAddTriangle(Geometry* geometry, Triangle triangle);
 unsigned int GAddTriangle(G* geometry, T* triangle);
+void GUpdateTransforms(G* geomtery);
 
 
 Triangle* geomGetTriangle(Geometry* geometry, unsigned int index);

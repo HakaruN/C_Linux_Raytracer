@@ -17,7 +17,7 @@ M* mGen(unsigned int numGeometries)
     M* m = malloc(sizeof(M));
     //allocate space
     m->nodeToGeomBkPtr = malloc(numGeometries * sizeof(BvhNode*));
-    m->geometries = malloc(numGeometries * sizeof(Geometry));
+    m->geometries = malloc(numGeometries * sizeof(G));
     m->numGeometries = 0; m->maxGeometries = numGeometries;
    return m;
 }
@@ -203,9 +203,9 @@ inline M* meshLoadOBJ(const char *filePath)
                 memcpy(t1.vertTexture[0], mesh->texCords[vert1TIndex], sizeof(Vec2));
                 memcpy(t1.vertTexture[1], mesh->texCords[vert2TIndex], sizeof(Vec2));
                 memcpy(t1.vertTexture[2], mesh->texCords[vert3TIndex], sizeof(Vec2));
-                memcpy(t1.vertNormal[0], mesh->normals[vert1PIndex], sizeof(Vec3));
-                memcpy(t1.vertNormal[1], mesh->normals[vert2PIndex], sizeof(Vec3));
-                memcpy(t1.vertNormal[2], mesh->normals[vert3PIndex], sizeof(Vec3));
+                memcpy(t1.vertNormal[0], mesh->normals[vert1NIndex], sizeof(Vec3));
+                memcpy(t1.vertNormal[1], mesh->normals[vert2NIndex], sizeof(Vec3));
+                memcpy(t1.vertNormal[2], mesh->normals[vert3NIndex], sizeof(Vec3));
 
                 ///triangle 2
                 t2.vertIndex[0] = vert3PIndex;
@@ -224,9 +224,9 @@ inline M* meshLoadOBJ(const char *filePath)
                 memcpy(t2.vertTexture[0], mesh->texCords[vert3TIndex], sizeof(Vec2));
                 memcpy(t2.vertTexture[1], mesh->texCords[vert4TIndex], sizeof(Vec2));
                 memcpy(t2.vertTexture[2], mesh->texCords[vert1TIndex], sizeof(Vec2));
-                memcpy(t2.vertNormal[0], mesh->normals[vert3PIndex], sizeof(Vec3));
-                memcpy(t2.vertNormal[1], mesh->normals[vert4PIndex], sizeof(Vec3));
-                memcpy(t2.vertNormal[2], mesh->normals[vert1PIndex], sizeof(Vec3));
+                memcpy(t2.vertNormal[0], mesh->normals[vert3NIndex], sizeof(Vec3));
+                memcpy(t2.vertNormal[1], mesh->normals[vert4NIndex], sizeof(Vec3));
+                memcpy(t2.vertNormal[2], mesh->normals[vert1NIndex], sizeof(Vec3));
                 //add the tris to the geom
                 GAddTriangle(&mesh->geometries[objectID], &t1);
                 GAddTriangle(&mesh->geometries[objectID], &t2);
