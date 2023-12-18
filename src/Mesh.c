@@ -75,7 +75,7 @@ inline unsigned int meshGeomAddTri(Mesh* mesh, unsigned int geomIdx, Triangle tr
     return 0;
 }
 
-inline M* meshLoadOBJ(const char *filePath)
+inline M* meshLoadOBJ(const char *filePath, Textures* textures)
 {
     fastObjMesh* loadMesh = fast_obj_read(filePath);
     if(!loadMesh)
@@ -86,16 +86,55 @@ inline M* meshLoadOBJ(const char *filePath)
         return 0;
     }
 
+
+    ///copy materials
+    fastObjMaterial* materials = loadMesh->materials;
+    for(unsigned int matID = 0; matID < loadMesh->material_count; matID++)
+    {
+        //diffuse texture
+        fastObjTexture* diffuse = &materials[matID].map_Kd;
+        unsigned int nothingBurger;//not used
+        unsigned int res = textureAddTex(textures, diffuse->name, 3, &nothingBurger);//add the textures from the obj file
+        switch (res)
+        {
+            case ERROR:
+            {
+                #ifdef DEBUG
+                printf("Error loading texture %s\n", diffuse->name);
+                fast_obj_destroy(loadMesh);
+                return NULL;
+                #endif
+                break;
+            };
+            
+            case ALREADY_PRESENT:
+            {
+                #ifdef DEBUG
+                printf("Texture %s already present\n", diffuse->name);
+                #endif
+                break;
+            }
+
+            case TEXTURE_ADDED:
+            {
+                #ifdef DEBUG
+                printf("Texture %s added\n", diffuse->name);
+                #endif
+                break;
+            }
+        }
+    }
+
     ///parse the file into objects
     unsigned int numObjects = loadMesh->object_count;
-
     
-    M* mesh = mGen(loadMesh->object_count);
+    M* mesh = mGen(numObjects);
     if(!mesh)
     {
         #ifdef DEBUG
         printf("Error initialising mesh\n");
         #endif
+        fast_obj_destroy(loadMesh);
         return 0;
     }
 
@@ -115,8 +154,18 @@ inline M* meshLoadOBJ(const char *filePath)
     mesh->texCords = malloc(texCordCount * sizeof(Vec2));
     memcpy(mesh->texCords, (loadMesh->texcoords + 2), texCordCount * sizeof(Vec2));
 
+    meshParsGeometries(mesh, loadMesh);//fills the mesh with the geoms
+
+    
+    fast_obj_destroy(loadMesh);
+    return mesh;  
+}
+
+
+void meshParsGeometries(M* mesh, fastObjMesh* loadMesh)
+{
     //parse the geometries out
-    for(unsigned int objectID = 0; objectID < numObjects; objectID++)
+    for(unsigned int objectID = 0; objectID < loadMesh->object_count; objectID++)
     {
         fastObjGroup* pObj = &loadMesh->objects[objectID];
         G* g = &mesh->geometries[objectID];
@@ -237,16 +286,15 @@ inline M* meshLoadOBJ(const char *filePath)
                 #ifdef DEBUG
                 printf("Error loading geometry. Unsupported number of vertices per face\n");
                 #endif
-                return 0;
+                return;
             }
             }
         }
         //Add the geom to the mesh
         meshAddGeom(mesh, g);
     }
-    fast_obj_destroy(loadMesh);
-    return mesh;  
 }
+
 
 unsigned int meshAddGeom(M* mesh, G* geometry)
 {

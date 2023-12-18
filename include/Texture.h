@@ -14,15 +14,39 @@
 
 #include <stdio.h>
 
+#define ERROR 0
+#define ALREADY_PRESENT 1
+#define TEXTURE_NOT_PRESENT 2
+#define TEXTURE_ADDED 2
+
+
 typedef struct Texture {
   unsigned int width, height;
   unsigned char channels;
-  unsigned char* image;
+  unsigned char *image;
   unsigned int sizeBytes;
+  char *name;
 } Texture;
 
-Texture loadTexture(const char* filename, int desiredChannels);
-void freeTexture(Texture* tex);
+typedef struct Textures {
+  unsigned int numTextures, maxTextures;
+  Texture* textures;
+} Textures;
+
+typedef struct Material {
+
+} Material;
+
+////TEXTURE
+Texture* loadTexture(char* filename, int desiredChannels);
+void texturefreeImage(Texture* tex);
+
+
+////TEXTURE CONTAINER
+Textures* textureGenTextures(unsigned int num);//get me a container
+unsigned int textureAddTex(Textures* container, char* filename, int desiredChannels, unsigned int* index);//Add a texture to the container. Index returns the index of the newly added texture in the container
+unsigned int textureIsPresent(Textures* container, char* filename, unsigned int* index);//Is the texture already in the container? index param return the index in the container for the texture
+
 
 
 #endif

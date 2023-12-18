@@ -23,12 +23,13 @@ int stereoscopic = 0; // creates a segfault
 int doublebuffer = 1;
 
 // Buffer sizes - how many entries we will allocate
-unsigned int numTextures = 10;
+unsigned int numTextures = 0, maxTextures = 10;
 FbDescriptor fbDescriptor = {400, 400, 3}; // Descriptor for the FB, [0] = WIDTH, [1] = HEIGHT, [2] = #colours per pixel
 
 // how many are allocated
 // Buffers
-Texture *textures;                           // list of textures
+Textures* textures;
+//Texture **textures;                           // list of textures
 Triangle *triangles;                         // list of triangles
 RayHitBuffer rayHitBuffer;                   // what triangle the ray intersected
 RayHitpointBuffer rayHitpointBuffer;         // where on the triangle we hit
@@ -59,7 +60,9 @@ int main()
   rayHitpointBuffer = malloc(sizeof(Vec3) * fbDescriptor[WIDTH] * fbDescriptor[HEIGHT]);
   rayHitnormalBuffer = malloc(sizeof(Vec3) * fbDescriptor[WIDTH] * fbDescriptor[HEIGHT]);
   rayHitDirectionBuffer = malloc(sizeof(Vec3) * fbDescriptor[WIDTH] * fbDescriptor[HEIGHT]);
-  textures = malloc(sizeof(Texture) * numTextures);
+
+  textures = textureGenTextures(5);
+  //textures = malloc(sizeof(Texture) * maxTextures);
 
   // colours
   /*
@@ -78,15 +81,38 @@ int main()
     return -1;
   }
 
+  unsigned int texIdx;
   int numChannels = 3;
-  const char *tex1Path = "//home/hakaru/Projects/C_Linux_Raytracer/res/scrot.png";
-  const char *tex2Path = "/home/hakaru/Projects/C_Linux_Raytracer/res/tex1.jpg";
-  textures[0] = loadTexture(tex1Path, numChannels);
-  textures[1] = loadTexture(tex2Path, numChannels);
+  /*
+  char *tex1Path = "/home/hakaru/Projects/C_Linux_Raytracer/res/scrot.png";
+  char *tex2Path = "/home/hakaru/Projects/C_Linux_Raytracer/res/tex1.jpg";
+  if(!textureAddTex(textures, tex1Path, 3, &texIdx))
+  {
+    #ifdef DEBUG
+    printf("Error loading texture: %s\n", tex1Path);
+    #endif
+    return -1;
+  }
+  #ifdef DEBUG
+  printf("Added texture to container at index %u\n", texIdx);
+  #endif
+  
+  if(!textureAddTex(textures, tex2Path, 3, &texIdx))
+  {
+    #ifdef DEBUG
+    printf("Error loading texture: %s\n", tex2Path);
+    return -1;
+    #endif
+  }
+  #ifdef DEBUG
+  printf("Added texture to container at index %u\n", texIdx);
+  #endif
 
+*/
   //M *m1 = meshLoadOBJ("/home/hakaru/Projects/C_Linux_Raytracer/res/models/cube.obj");
-  M *m1 = meshLoadOBJ("/home/hakaru/Projects/C_Linux_Raytracer/res/models/2cubes/2Cubes.obj");
-
+  M *m1 = meshLoadOBJ("/home/hakaru/Projects/C_Linux_Raytracer/res/models/2cubes/2Cubes.obj", textures);
+  for(unsigned int i = 0; i < textures->numTextures; i++)
+    printf("textures has tex: %s\n", textures->textures[i].name);
   G* g0 = &m1->geometries[0];
   g0->position[X] = 200;
   g0->position[Y] = 200;
@@ -140,7 +166,7 @@ int main()
       printf("\tTriangle %u: \n", triIdx);
       T *t = &geom->triangles[triIdx];
 
-      geom->triangles[triIdx].texture = &textures[0];
+      geom->triangles[triIdx].texture = &textures->textures[0];
       for (unsigned int vertIdx = 0; vertIdx < 3; vertIdx++)
       {
         printf("\t\tVertex %u\n", vertIdx);

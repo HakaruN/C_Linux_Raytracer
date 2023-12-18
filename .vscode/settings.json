@@ -7,6 +7,7 @@
         "mesh.h": "c",
         "framebuffer.h": "c",
         "limits": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "stb_image.h": "c"
     }
 }

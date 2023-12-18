@@ -26,8 +26,9 @@ Mesh meshGen(unsigned int numGeometries);
 unsigned int meshGenGeometry(Mesh* mesh, unsigned int numTriangles, Vec3 pos);
 unsigned int meshGeomAddTri(Mesh* mesh, unsigned int geomIdx, Triangle triangle);
 
+void meshParsGeometries(M* mesh, fastObjMesh* loadMesh);
 
-M* meshLoadOBJ(const char *filePath);
+M* meshLoadOBJ(const char *filePath, Textures* textures);
 unsigned int meshAddGeom(M* mesh, G* geom);
 
 //insert to BVH
